@@ -77,3 +77,40 @@ def ReadTextFile(testFile):
 # ------------------------------------------- Solver -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
 
+# MIP solution
+def SolverMIP(data):
+    run_time=0
+    start_time = time.time()
+
+
+    # init MIP solver
+    solver = pywraplp.Solver.CreateSolver('SCIP')
+    objective = solver.Objective()
+
+    # declare variables
+    Xs=[0]*data["N"]*data["N"]
+    
+    objective_terms = []
+    for i in range(data["N"]*2):
+        # create variables
+        Xs[i]=solver.IntVar(0, 1, 'x_{0}'.format(i))
+        # set objective
+        objective_terms.append(Xs[i])
+        
+    solver.Maximize(solver.Sum(objective_terms))
+    
+    # add constraints
+    # --------
+    
+
+
+# --------------------------------------------------------------------------------------------------------------
+# ------------------------------------------- Main -----------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------
+
+
+if __name__=="__main__":
+    if len(sys.argv)>1:
+        print(sys.argv[1])
+        # main_testfile(sys.argv[1])
+    
