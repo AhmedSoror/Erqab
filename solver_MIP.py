@@ -11,6 +11,7 @@ import signal
 from contextlib import contextmanager
 import time
 import math
+import re
 
 sys.setrecursionlimit(500000)
 
@@ -31,13 +32,31 @@ str_location = "locations"
 # -------------------------------------------  I/O  ------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
 # N, Distance limit
-# user i:  max, min_fare, min_passengers, capacity
+# user i    :  max  , min_fare  , min_passengers , capacity , location_x    , location_y
+# ---------------------------------------------------------------------------------------
+# driver    :  -inf , min_fare  , min_passengers , capacity , location_x    , location_y
+# Passenger :  max  ,   inf     ,       0        ,  0       , location_x    , location_y
+
 # --------------------------------------------------------------------------------------------------------------
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+def natural_keys(summary):
+    text = summary['test_case']
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
+def sortFile(files_arr):
+    return [ atoi(c) for c in re.split(r'(\d+)', files_arr) ]
+
+def ReadTestSet(test_set):
+    testFiles = [join(test_set, f) for f in listdir(test_set) if isfile(join(test_set, f))]
+    testFiles.sort(reverse=False, key=sortFile)
+    return testFiles
+
 def ReadLine(file):
     line = file.readline()
     data = line.split(" ")
     # remove "\n"
-    data[-1] = int(data[-1][0:-1])
+    # data[-1] = int(data[-1][0:-1])
     # convert to int
     for i in range(len(data)):
         data[i] = int(data[i])
@@ -73,8 +92,10 @@ def ReadTextFile(testFile):
     data[str_min_fare] = min_fare
     data[str_min_pass] = min_pass
     data[str_cap] = capacities
+    data[str_location] = locations
     
     return data
+
 
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Solver -----------------------------------------------------------
@@ -95,9 +116,11 @@ def SolverMIP(data):
     objective = solver.Objective()
 
     # declare variables
-    Xs = [[0]*data[str_n]]*data[str_n]
-    Ds = [0]*data[str_n]
-    Ps = [0]*data[str_n]
+    # Xs = [[0]*data[str_n]]*data[str_n]
+    Xs = []
+    Ds = []
+    Ps = []
+    Xs_objective=[]
     Caps = data[str_cap]
     distance_limit = data[str_dis]
     passengers_max = data[str_max]
@@ -109,15 +132,21 @@ def SolverMIP(data):
 
     # create variables
     for i in range(data[str_n]):
-        for j in range(str_n):
-            Xs[i][j]=solver.IntVar(0, 1, 'x_{0}_{1}'.format(i,j))
+        Xs.append([])
+        for j in range(data[str_n]):
+            Xs[i].append(solver.IntVar(0, 1, 'x_{0}_{1}'.format(i,j)))
+            Xs_objective.append(Xs[i][j])
     
-    for i in range(len(Ds)):
-        Ds[i]=solver.IntVar(0, 1, 'D_{0}'.format(i))
-        Ps[i]=solver.IntVar(0, 1, 'P_{0}'.format(i))
+    for i in range(data[str_n]):
+        Ds.append(solver.IntVar(0, 1, 'D_{0}'.format(i)))
+        Ps.append(solver.IntVar(0, 1, 'P_{0}'.format(i)))
         
     # set objective
-    solver.Maximize(solver.Sum(Xs))
+    
+    # solver.Maximize(solver.Sum([row[i] for row in Xs]))
+    solver.Maximize(solver.Sum(Xs_objective))
+    
+
     
     # add constraints
     # --------
@@ -127,7 +156,7 @@ def SolverMIP(data):
         
         #b) If a user is a passenger, he/she is matched with at most 1 driver
         passengers = [row[i] for row in Xs]
-        solver.Add(solver.Sum(passengers) <= 1)
+        solver.Add(solver.Sum(passengers) <= Ps[i])
 
         #c) Every user is either a driver or a passenger
         solver.Add(Ds[i]+Ps[i] <= 1)
@@ -142,18 +171,24 @@ def SolverMIP(data):
             solver.Add(Xs[i][j] * GetDist(locations[i],locations[j])  <= distance_limit)
             
             # e) Passenger can pay the fare that is charged by the matched driver
-            solver.Add(Xs[i][j] * passengers_max[j] <= min_fares[i])
+            solver.Add(Xs[i][j] * min_fares[i] <= passengers_max[j])
    
     
     solver.Solve()
     run_time=time.time() - start_time
-    Xs_values = [[0]*data[str_n]]*data[str_n]
+    Xs_values = []
+    Ds_values = []
+    Ps_values = []
     for i in range (len(Xs)):
+        Xs_values.append([])
+        Ds_values.append(Ds[i].solution_value())
+        Ps_values.append(Ps[i].solution_value())
         for j in range (len(Xs[i])):
-            Xs_values[i][j]=Xs[i][j].solution_value()
+            Xs_values[i].append(Xs[i][j].solution_value())
     
     
     # dic = getFacWH(Xs_values)
+    print("Ps:{0} \nDs:{1}".format(Ps_values,Ds_values))
     return {"z":round(solver.Objective().Value()), "Xs": Xs_values,"time":run_time}
     
 
@@ -162,9 +197,32 @@ def SolverMIP(data):
 # ------------------------------------------- Main -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
 
+def main_testfile(test_set):
+    testFiles = iter(ReadTestSet(test_set))
+    testFile=next(testFiles, None)
+    summary=[]
+    while testFile != None:
+        # get current test file path
+        testFile_parent = testFile.split("/")[0]+'_output'
+        testFile_name = testFile.split("/")[-1]
+        testFile_name = testFile_name.replace("in", "out")
+        
+        testCase = ReadTextFile(testFile)
+        
+        # ---------------------------------------------------------------------------
+        # ------------------------------ MIP --------------------------------------
+        # ---------------------------------------------------------------------------
+        sol_MIP = SolverMIP(testCase)
+        print(sol_MIP)
+        
+        # ---------------------------------------------------------------------------
+        # ----------------------------- summary -------------------------------------
+        # ---------------------------------------------------------------------------
+        
+        testFile=next(testFiles, None)
 
 if __name__=="__main__":
     if len(sys.argv)>1:
         print(sys.argv[1])
-        # main_testfile(sys.argv[1])
+        main_testfile(sys.argv[1])
     
