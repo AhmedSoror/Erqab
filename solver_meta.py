@@ -131,16 +131,7 @@ def solve(dir_name):
         
         print(genatic_algorithm(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist))
         
-        # print(n,max_distance)
-        # print(max_pay)
-        # print(min_passenger_fare)
-        # print(min_passengers)
-        # print(capacity)
-        # print(locations)
-        # print(dist)
         
-        # print(capacity)
-        # print(dist)
         
        
 
@@ -150,42 +141,4 @@ if __name__ == "__main__":
         os.mkdir("./"+sys.argv[1]+"_output/")  
     solve(sys.argv[1])
     
-    # arr1=np.array([
-    #     [1,1,1,1],
-    #     [1,1,1,1],
-    #     [0,0,0,0],
-    #     [0,0,0,0]
-    # ])
     
-    # arr2=np.array([
-    #     [0,0,0,0],
-    #     [0,0,0,0],
-    #     [0,0,0,0],
-    #     [0,0,0,0]  
-    # ])
-    # print(arr2)
-    # arr2[0][0]=1
-    # print(arr2)
-    # index=0
-    # arr3=np.append(arr1[:index],arr2[index:],axis=0)
-    # arr4=np.append(arr1[index:],arr2[:index],axis=0)
-    
-    # indices=np.where(arr2==1)
-    # print(indices)
-    # print(len(indices))
-    # print(len(indices[0]))
-    # print(len(indices[1]))
-    
-    # index_1,index_2=np.random.randint(len(indices[0]),size=2)
-    # print(index_1)
-    # print(index_2)
-    
-
-    
-    # arr=np.array([
-    #     [1,2,3,],
-    #     [4,5,6],
-    #     [7,8,9]
-    # ])
-    # print(arr.sum(0))
-    # print(arr.sum(1))
