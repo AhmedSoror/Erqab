@@ -20,13 +20,20 @@ sys.setrecursionlimit(500000)
 # --------------------------------------------------------------------------------------------------------------
 EPS =10e-8
 INF = 10e18
-str_dis = "distance_limit"
-str_n = "N"
-str_cap = "Caps"
-str_max = "Passengers_Max"
-str_min_fare = "min_fare_per_passenger"
-str_min_pass = "total_min_passenger"
-str_location = "locations"
+# total number of users
+str_n = "n"
+# distance limit
+str_dis = "dl"
+# capcity per driver
+str_cap = "c"
+# locations of users
+str_location = "loc"
+# array: the max money passenger i can pay.
+str_pay = "pay"
+# array: money charged by the driver i per passenger
+str_fare = "fare"
+# array: the min number of passengers to travel with the driver
+str_min_cap = "minc"
 
 # --------------------------------------------------------------------------------------------------------------
 # -------------------------------------------  I/O  ------------------------------------------------------------
@@ -88,9 +95,9 @@ def ReadTextFile(testFile):
             locations.append((user[4],user[5]))
         f.close()
             
-    data[str_max] = maxs
-    data[str_min_fare] = min_fare
-    data[str_min_pass] = min_pass
+    data[str_pay] = maxs
+    data[str_fare] = min_fare
+    data[str_min_cap] = min_pass
     data[str_cap] = capacities
     data[str_location] = locations
     
@@ -123,9 +130,9 @@ def SolverMIP(data):
     Xs_objective=[]
     Caps = data[str_cap]
     distance_limit = data[str_dis]
-    passengers_max = data[str_max]
-    min_fares = data[str_min_fare]
-    min_passengers=data[str_min_pass]
+    passengers_max = data[str_pay]
+    min_fares = data[str_fare]
+    min_passengers=data[str_min_cap]
     locations = data[str_location]    
 
 
