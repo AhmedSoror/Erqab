@@ -39,9 +39,9 @@ str_min_cap = "minc"
 # -------------------------------------------  I/O  ------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
 # N, Distance limit
-# user i    :  max  , min_fare  , min_passengers , capacity , location_x    , location_y
+# user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
 # ---------------------------------------------------------------------------------------
-# driver    :  -inf , min_fare  , min_passengers , capacity , location_x    , location_y
+# driver    :  -inf , min_fare  , min_capacity , capacity , location_x    , location_y
 # Passenger :  max  ,   inf     ,       0        ,  0       , location_x    , location_y
 
 # --------------------------------------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ def ReadTextFile(testFile):
         capacities=[]
         locations = []
 
-        for i in range(data["N"]):
+        for i in range(data[str_n]):
             user=ReadLine(f)
             maxs.append(user[0])
             min_fare.append(user[1])
@@ -130,9 +130,9 @@ def SolverMIP(data):
     Xs_objective=[]
     Caps = data[str_cap]
     distance_limit = data[str_dis]
-    passengers_max = data[str_pay]
-    min_fares = data[str_fare]
-    min_passengers=data[str_min_cap]
+    pays = data[str_pay]
+    fares = data[str_fare]
+    min_cap=data[str_min_cap]
     locations = data[str_location]    
 
 
@@ -169,7 +169,7 @@ def SolverMIP(data):
         solver.Add(Ds[i]+Ps[i] <= 1)
 
         #f) driver_i$ has at least $D\_min\_pass_{i}$ matched passengers
-        solver.Add(solver.Sum(Xs[i]) >= min_passengers[i]*Ds[i])
+        solver.Add(solver.Sum(Xs[i]) >= min_cap[i]*Ds[i])
     
 
     for i in range (len(Xs)):
@@ -178,8 +178,9 @@ def SolverMIP(data):
             solver.Add(Xs[i][j] * GetDist(locations[i],locations[j])  <= distance_limit)
             
             # e) Passenger can pay the fare that is charged by the matched driver
-            solver.Add(Xs[i][j] * min_fares[i] <= passengers_max[j])
-   
+            # solver.Add(Xs[i][j] * fares[i] <= pays[j])
+            solver.Add(Xs[i][j] * fares[i] <= pays[j]*Ps[j])
+            
     
     solver.Solve()
     run_time=time.time() - start_time
