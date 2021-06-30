@@ -2,11 +2,73 @@ import os
 import sys
 import glob
 import numpy as np
+import math
 from random import choices,randint,uniform
+
 
 
 POPULATIION_SIZE=50
 NUMBER_OF_GENERATIONS=100
+
+str_n = "n"
+# distance limit
+str_dis = "dl"
+# capcity per driver
+str_cap = "c"
+# locations of users
+str_location = "loc"
+# array: the max money passenger i can pay.
+str_pay = "pay"
+# array: money charged by the driver i per passenger
+str_fare = "fare"
+# array: the min number of passengers to travel with the driver
+str_min_cap = "minc"
+
+def GetDist(loc_A, loc_B):
+    return math.sqrt( math.pow(loc_A[0]-loc_B[0],2) + math.pow(loc_A[1]-loc_B[1],2))
+
+def ReadLine(file):
+    line = file.readline()
+    data = line.split(" ")
+    # remove "\n"
+    # data[-1] = int(data[-1][0:-1])
+    # convert to int
+    for i in range(len(data)):
+        data[i] = int(data[i])
+    return data
+
+def Get_N_Dist(file):
+    data = ReadLine(file)
+    return {str_n: data[0], str_dis: data[1]}
+
+def ReadTextFile(testFile):
+    print("Reading test file: {0}".format(testFile))
+    with open(testFile) as f:
+        # add n, m to data
+        data = Get_N_Dist(f)
+        
+        # read constraints 
+        maxs=[]
+        min_fare=[]
+        min_pass=[]
+        capacities=[]
+        locations = []
+
+        for i in range(data[str_n]):
+            user=ReadLine(f)
+            maxs.append(user[0])
+            min_fare.append(user[1])
+            min_pass.append(user[2])
+            capacities.append(user[3])
+            locations.append((user[4],user[5]))
+        f.close()
+            
+    data[str_pay] = maxs
+    data[str_fare] = min_fare
+    data[str_min_cap] = min_pass
+    data[str_cap] = capacities
+    data[str_location] = locations
+    return data
 
 def mutation_function(matched,n):
     r=uniform(0, 1)
@@ -68,8 +130,18 @@ def fitness_function(n,max_distance,matched,max_pay,min_passenger_fare,min_passe
                 return 1
     return matched.sum()+1
 
-
-def genatic_algorithm(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist):
+def genatic_algorithm(data):
+    
+    n=data[str_n]
+    max_distance=data[str_dis]
+    max_pay=data[str_pay]
+    min_passenger_fare=data[str_fare]
+    min_passengers=data[str_min_cap]
+    capacity=data[str_cap]
+    locations=data[str_location]
+    dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
+    
+    
     population=generate_population(n)
     best_solution=generate_solution(n)
     best_solution_value=fitness_function(n, max_distance, best_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)
@@ -100,38 +172,14 @@ def genatic_algorithm(n, max_distance, max_pay, min_passenger_fare, min_passenge
     
     return best_solution,best_solution_value,best_solution_iteration
     
-
-
 def solve(dir_name):
     for file_name in sorted(glob.glob(dir_name+"/*"),key=len):
-        test_name=file_name.split(dir_name+"\\")[1]
-        f=open(file_name)
-        temp=f.read().splitlines()
-        
-        ## Number of user,Max distance between driver & passenger
-        n,max_distance=map(int,(temp[0].split(" ")))  
-        
-        ## The maximum a user will pay if he travels with someone else
-        max_pay=np.fromiter(map(lambda x:int(x.split(" ")[0]),temp[1:n+1]),dtype=int) 
-        
-        ## The minimum a driver will get per passenger
-        min_passenger_fare=np.fromiter(map(lambda x:int(x.split(" ")[1]),temp[1:n+1]),dtype=int) 
-        
-        ## The minimum number of passengers required by the user if he is a driver
-        min_passengers=np.fromiter(map(lambda x:int(x.split(" ")[2]),temp[1:n+1]),dtype=int) 
-        
-        ## The capacity of the user if he a driver
-        capacity=np.fromiter(map(lambda x:int(x.split(" ")[3]),temp[1:n+1]),dtype=int) 
-        
-        ## the x,y cordinatses of each user
-        locations=np.array(list(map(lambda x : (x.split(" ")[4],x.split(" ")[5]),temp[1:n+1])),dtype=int) 
-        
-        ## The distance matrix between all users
-        dist=np.linalg.norm(locations[:, None] - locations[None, :], axis=-1) 
-        
-        print(genatic_algorithm(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist))
+        data=ReadTextFile(file_name)
+        print(genatic_algorithm(data))
         
         
+        
+    
         
        
 
