@@ -8,7 +8,7 @@
 # choose solver and run
 # view results
 # view output records
-# View input and output on the map 
+# View input and output on the map
 
 
 import streamlit as st
@@ -39,76 +39,128 @@ str_fare = "fare"
 # array: the min number of passengers to travel with the driver
 str_min_cap = "minc"
 
-columns_name = [max  , min_fare  , min_capacity , capacity , location_x    , location_y]
-dictionary_keys = [
-    str_pay,
-    str_fare,
-    str_min_cap,
-    str_cap,
-    str_location
-    ]
-
+columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
+dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 # ---------------
 # input
 # N, Distance limit
 # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
 # ---------------
 
-#make a title for your webapp
-st.title("Erqab")
 
 
+# -----------------------
+# read input
+def GetInputDict(data_input):
+    data_dir = {str_n: data_input[str_n], str_dis: data_input[str_dis]}
+    data = data_input["data"]
+    for i in range(len(dictionary_keys)):
+        data_dir[dictionary_keys[i]] = data[i]
 
-with st.beta_expander("Input", expanded=True):
+    locations_arr = np.vstack((data[-2], data[-1])).T.tolist()
+    data_dir[str_location] = locations_arr
+
+    return data_dir
+
+def InputComponent_old():
+    with st.beta_expander("Input", expanded=True):
+        col1, col2 = st.beta_columns(2)
+        with col1:
+            n = st.text_input('Total Number of users')
+        with col2:
+            distance_limit = st.text_input('Distance_Limit')
+
+        if(n and distance_limit):
+            n = int(n)
+            distance_limit = int(distance_limit)
+
+            data_width = n
+            data_height = len(columns_name)
+
+            data = [0]*data_height
+            for i in range(data_height):
+                data[i] = [0]*data_width
+
+            # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
+            form = st.form(key='Input_Form')
+            with form:
+                cols = form.beta_columns(len(columns_name))
+                for ind, col in enumerate(cols):
+                    # col.write("as")
+                    for usr in range(int(n)):
+                        data[ind][usr] = col.text_input(
+                            '{0}_{1}'.format(columns_name[ind], usr+1))
+                        if(data[ind][usr]):
+                            data[ind][usr] = (int)(data[ind][usr])
+                        # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
+
+            submit = form.form_submit_button('Submit')
+
+            if submit:
+                data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
+                print(data_dir)
+                sol = SolverMIP(data_dir)
+                return sol
+
+def InputComponent():
     col1, col2 = st.beta_columns(2)
     with col1:
         n = st.text_input('Total Number of users')
     with col2:
         distance_limit = st.text_input('Distance_Limit')
 
-    if( n and distance_limit):
-        n =int(n)
+    if(n and distance_limit):
+        n = int(n)
         distance_limit = int(distance_limit)
-
         data_width = n
         data_height = len(columns_name)
-        
+
         data = [0]*data_height
         for i in range(data_height):
-            data[i]= [0]*data_width
+            data[i] = [0]*data_width
 
-        # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
-        form = st.form(key='Input_Form')
-        with form:
-            cols = form.beta_columns(len(columns_name))
-            for ind, col in enumerate(cols):
-                    # col.write("as")
-                for usr in range(int(n)):
-                    data[ind][usr] = col.text_input('{0}_{1}'.format(columns_name[ind],usr+1))
+        for usr in range(int(n)):
+            with st.beta_expander("users {0}".format(usr+1), expanded=False):
+                cols = st.beta_columns(len(columns_name))
+                for ind, col in enumerate(cols):
+                    data[ind][usr] = col.text_input(label='{0}'.format(
+                        columns_name[ind], usr+1), key='{0}_{1}'.format(columns_name[ind], usr+1))
                     if(data[ind][usr]):
                         data[ind][usr] = (int)(data[ind][usr])
                     # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
 
+        m = st.markdown("""
+        <style>
+        div.stButton > button:first-child {
+            background-color: rgb(70, 187, 26);
+        }
+        </style>""", unsafe_allow_html=True)
 
-        submit = form.form_submit_button('Submit')
         
-        if submit:
-            data_dir = {str_n: n, str_dis: distance_limit}     
+        solver_select = st.selectbox('Solver', ["Greedy","MIP","Meta","DP"], key="solver_select")
 
-            for i in range(len(dictionary_keys)):
-                data_dir[dictionary_keys[i]] = data[i]
-            
-            
-            locations_arr = np.vstack((data[-2], data[-1])).T.tolist()
-            data_dir[str_location] = locations_arr 
-
+        mip_but = st.button('solve')
+        if(mip_but):
             # df = pd.DataFrame(data,columns=(columns_name))
             # st.dataframe(df)
+            data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
+            if solver_select == "MIP" :
+                print(data_dir)
+                sol = SolverMIP(data_dir)
+                return sol
 
-            print(data_dir)    
-            
-            print(SolverMIP(data_dir))
 
+
+def main():
+    # make a title for your webapp
+    st.title("Erqab")
+    # read input
+    sol = InputComponent()
+    print(sol)
+
+
+if __name__=="__main__":
+    main()
 
 
 
