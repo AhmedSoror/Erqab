@@ -158,6 +158,11 @@ def SolverMIP(data):
     # add constraints
     # --------
     for i in range(len(Xs)):       
+        #a) Each driver is matched with himself
+        # Xs[i][i] = Ds[i]
+        solver.Add(Xs[i][i] - Ds[i] <= EPS)
+
+
         #a) If a user is a driver, he/she is matched with at most \emph{$C_{i}$} passengers. 
         solver.Add(solver.Sum(Xs[i]) <= Caps[i]*Ds[i])
         
