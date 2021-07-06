@@ -1,17 +1,39 @@
 import streamlit as st
 import datetime
 import numpy as np
-
 import pandas as pd
+from solver_MIP import SolverMIP
 
 max = "max"
 min_fare = "min_fare"
 min_capacity = "min_capacity"
-capacity = "capacity"
+capacity = "max_capacity"
 location_x = "location_x"
 location_y = "location_y"
 
+# total number of users
+str_n = "n"
+# distance limit
+str_dis = "dl"
+# capcity per driver
+str_cap = "c"
+# locations of users
+str_location = "loc"
+# array: the max money passenger i can pay.
+str_pay = "pay"
+# array: money charged by the driver i per passenger
+str_fare = "fare"
+# array: the min number of passengers to travel with the driver
+str_min_cap = "minc"
+
 columns_name = [max  , min_fare  , min_capacity , capacity , location_x    , location_y]
+dictionary_keys = [
+    str_pay,
+    str_fare,
+    str_min_cap,
+    str_cap,
+    str_location
+    ]
 
 # ---------------
 # input
@@ -24,28 +46,54 @@ st.title("Erqab")
 
 col1, col2 = st.beta_columns(2)
 
+
 with col1:
     n = st.text_input('Total Number of users')
 with col2:
     distance_limit = st.text_input('Distance_Limit')
 
 if( n and distance_limit):
+    n =int(n)
+    distance_limit = int(distance_limit)
+
+    data_width = n
+    data_height = len(columns_name)
+    
+    data = [0]*data_height
+    for i in range(data_height):
+        data[i]= [0]*data_width
+
     # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
     form = st.form(key='Input_Form')
     with form:
         cols = form.beta_columns(len(columns_name))
         for ind, col in enumerate(cols):
                 # col.write("as")
-            for k in range(int(n)):
-                col.text_input('{0}_{1}'.format(columns_name[ind],k+1))
+            for usr in range(int(n)):
+                data[ind][usr] = col.text_input('{0}_{1}'.format(columns_name[ind],usr+1))
+                if(data[ind][usr]):
+                    data[ind][usr] = (int)(data[ind][usr])
                 # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
 
 
     submit = form.form_submit_button('Submit')
     
     if submit:
-        pass
+        data_dir = {str_n: n, str_dis: distance_limit}     
+
+        for i in range(len(dictionary_keys)):
+            data_dir[dictionary_keys[i]] = data[i]
         
+        
+        locations_arr = np.vstack((data[-2], data[-1])).T.tolist()
+        data_dir[str_location] = locations_arr 
+
+        # df = pd.DataFrame(data,columns=(columns_name))
+        # st.dataframe(df)
+
+        print(data_dir)    
+        
+        print(SolverMIP(data_dir))
 
 # -----------------
 # Read CSV
