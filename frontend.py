@@ -32,13 +32,15 @@ with col2:
 if( n and distance_limit):
     # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
     form = st.form(key='Input_Form')
-
     with form:
         cols = form.beta_columns(len(columns_name))
         for ind, col in enumerate(cols):
-            # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))
+                # col.write("as")
+            # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))  
             for k in range(int(n)):
                 col.text_input('{0}_{1}'.format(columns_name[ind],k+1))
+
+
     submit = form.form_submit_button('Submit')
     
     if submit:
