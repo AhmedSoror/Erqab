@@ -41,7 +41,7 @@ str_min_cap = "minc"
 # N, Distance limit
 # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
 # ---------------------------------------------------------------------------------------
-# driver    :  -inf , min_fare  , min_capacity , capacity , location_x    , location_y
+# driver    :  0 , min_fare  , min_capacity , capacity , location_x    , location_y
 # Passenger :  max  ,   inf     ,       0        ,  0       , location_x    , location_y
 
 # --------------------------------------------------------------------------------------------------------------
