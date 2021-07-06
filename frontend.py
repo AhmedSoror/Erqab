@@ -2,13 +2,13 @@
 # -----------------
 # to do
 # -----------------
-# validate inputs
-# limit input to 10 users, more than that => read from csv
-# reset button
-# choose solver and run
 # view results
+# reset button
 # view output records
 # View input and output on the map
+
+# limit input to 10 users, more than that => read from csv
+# validate inputs
 
 
 import streamlit as st
@@ -50,7 +50,8 @@ dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 
 
 # -----------------------
-# read input
+# Input Component
+# -----------------------
 def GetInputDict(data_input):
     data_dir = {str_n: data_input[str_n], str_dis: data_input[str_dis]}
     data = data_input["data"]
@@ -150,15 +151,48 @@ def InputComponent():
                 return sol
 
 
+# -----------------------
+# Output Component
+# -----------------------
 
+def OutputComponent():
+    # df = pd.DataFrame( np.random.randn(5, len(columns_name)), columns=(columns_name))
+    # data = {'z': 8, 'cars': ["1,2", "3,4,5","7,8"], 'time': 0.0077669620513916016}
+    data = {'z': 8, 'Xs': [[1,2], [3,4,5],[7,8]], 'time': 0.0077669620513916016}
+    data_1 = {"cars":data["Xs"]}
+    df = pd.DataFrame.from_dict(data)
+    st.dataframe(df)
+    df = pd.DataFrame.from_dict(data_1)
+    st.dataframe(df)
+    # Create row, column, and value inputs
+
+
+
+# -----------------------
+# Main page
+# -----------------------
 def main():
     # make a title for your webapp
     st.title("Erqab")
-    # read input
-    sol = InputComponent()
-    print(sol)
+    
+    
+    sidebar = st.sidebar.radio("page",["Input", "Output"],0)
+    if(sidebar == "Input"):
+        # read input
+        state = 1
 
+    elif (sidebar == "Output"):
+        state = 2
+    
+    if(state == 1):
+        sol = InputComponent()
+        print(sol)
+    else:
+        OutputComponent()
 
+# -----------------------
+# -----------------------
+# -----------------------
 if __name__=="__main__":
     main()
 
