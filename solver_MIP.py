@@ -110,9 +110,7 @@ def ReadTextFile(testFile):
 
 def GetDist(loc_A, loc_B):
     return math.sqrt( math.pow(loc_A[0]-loc_B[0],2) + math.pow(loc_A[1]-loc_B[1],2))
-    
-
-
+   
 # MIP solution
 def SolverMIP(data):
     run_time=0
@@ -205,8 +203,6 @@ def SolverMIP(data):
     print("Ps:{0} \nDs:{1}".format(Ps_values,Ds_values))
     return {"z":round(solver.Objective().Value()), "Xs": Xs_values,"time":run_time}
     
-
-
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Main -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
