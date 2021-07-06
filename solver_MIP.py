@@ -132,7 +132,7 @@ def SolverMIP(data):
     distance_limit = data[str_dis]
     pays = data[str_pay]
     fares = data[str_fare]
-    min_cap=data[str_min_cap]
+    min_caps=data[str_min_cap]
     locations = data[str_location]    
 
 
@@ -163,18 +163,18 @@ def SolverMIP(data):
         solver.Add(Xs[i][i] - Ds[i] <= EPS)
 
 
-        #a) If a user is a driver, he/she is matched with at most \emph{$C_{i}$} passengers. 
-        solver.Add(solver.Sum(Xs[i]) <= Caps[i]*Ds[i])
+        #b) If a user is a driver, he/she is matched with at most c_i passengers (not including himself).
+        solver.Add(solver.Sum(Xs[i]) <= (Caps[i]+1)*Ds[i])
         
-        #b) If a user is a passenger, he/she is matched with at most 1 driver
+        #c) A user is matched with at most 1 driver
         passengers = [row[i] for row in Xs]
-        solver.Add(solver.Sum(passengers) <= Ps[i])
+        solver.Add(solver.Sum(passengers) <= 1)
 
         #c) Every user is either a driver or a passenger
         solver.Add(Ds[i]+Ps[i] <= 1)
 
         #f) driver_i$ has at least $D\_min\_pass_{i}$ matched passengers
-        solver.Add(solver.Sum(Xs[i]) >= min_cap[i]*Ds[i])
+        solver.Add(solver.Sum(Xs[i]) >= min_caps[i]*Ds[i])
     
 
     for i in range (len(Xs)):
