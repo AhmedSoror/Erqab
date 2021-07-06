@@ -36,9 +36,9 @@ if( n and distance_limit):
         cols = form.beta_columns(len(columns_name))
         for ind, col in enumerate(cols):
                 # col.write("as")
-            # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))  
             for k in range(int(n)):
                 col.text_input('{0}_{1}'.format(columns_name[ind],k+1))
+                # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
 
 
     submit = form.form_submit_button('Submit')
