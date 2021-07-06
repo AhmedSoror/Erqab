@@ -22,9 +22,12 @@ columns_name = [max  , min_fare  , min_capacity , capacity , location_x    , loc
 #make a title for your webapp
 st.title("Erqab")
 
-#lets try a both a text input and area as well as a date
-n = st.text_input('Total Number of users')
-distance_limit = st.text_input('Distance_Limit')
+col1, col2 = st.beta_columns(2)
+
+with col1:
+    n = st.text_input('Total Number of users')
+with col2:
+    distance_limit = st.text_input('Distance_Limit')
 
 if( n and distance_limit):
     # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
