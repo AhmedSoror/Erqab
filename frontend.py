@@ -20,12 +20,43 @@ columns_name = [max  , min_fare  , min_capacity , capacity , location_x    , loc
 # ---------------
 
 #make a title for your webapp
-# st.title("Erqab")
+st.title("Erqab")
 
-# #lets try a both a text input and area as well as a date
-field_1 = st.text_input('Total Number of users')
-field_1 = st.text_input('Distance_Limit')
-# field_2 = st.text_area("Your address")
+#lets try a both a text input and area as well as a date
+n = st.text_input('Total Number of users')
+distance_limit = st.text_input('Distance_Limit')
+
+if( n and distance_limit):
+    for i in range(int(n)):
+        # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
+    
+        form = st.form(key='user_{0}'.format(i))
+
+        with form:
+            cols = form.beta_columns(len(columns_name))
+            for ind, col in enumerate(cols):
+                # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))
+                col.text_input('{0}'.format(columns_name[ind]))
+        submit = form.form_submit_button('Submit')
+        
+        if submit:
+            pass
+        
+
+# -----------------
+# Read CSV
+# -----------------
+# path = st.text_input('CSV file path')
+# if path:
+#     df = pd.read_csv(path)
+#     df
+# -------------------------------------------------------
+
+
+# -----------------
+# Display dataframe
+# -----------------
+
 # # Get some data.
 # data = np.random.randn(10, 2)
 
