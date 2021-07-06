@@ -1,3 +1,16 @@
+# -------------------------------------------------------
+# -----------------
+# to do
+# -----------------
+# validate inputs
+# limit input to 10 users, more than that => read from csv
+# reset button
+# choose solver and run
+# view results
+# view output records
+# View input and output on the map 
+
+
 import streamlit as st
 import datetime
 import numpy as np
@@ -95,6 +108,9 @@ with st.beta_expander("Input", expanded=True):
             print(data_dir)    
             
             print(SolverMIP(data_dir))
+
+
+
 
 # -----------------
 # Read CSV
