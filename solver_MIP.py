@@ -173,8 +173,8 @@ def SolverMIP(data):
         #d) Every user is either a driver or a passenger
         solver.Add(Ds[i]+Ps[i] <= 1)
 
-        #f) driver_i$ has at least $D\_min\_pass_{i}$ matched passengers
-        solver.Add(solver.Sum(Xs[i]) >= min_caps[i]*Ds[i])
+        #g) driver_i has at least minc i matched passengers (not includnig himself)
+        solver.Add(solver.Sum(Xs[i]) >= (min_caps[i]+1)*Ds[i])
     
 
     for i in range (len(Xs)):
