@@ -27,20 +27,19 @@ n = st.text_input('Total Number of users')
 distance_limit = st.text_input('Distance_Limit')
 
 if( n and distance_limit):
-    for i in range(int(n)):
-        # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
-    
-        form = st.form(key='user_{0}'.format(i))
+    # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
+    form = st.form(key='Input_Form')
 
-        with form:
-            cols = form.beta_columns(len(columns_name))
-            for ind, col in enumerate(cols):
-                # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))
-                col.text_input('{0}'.format(columns_name[ind]))
-        submit = form.form_submit_button('Submit')
-        
-        if submit:
-            pass
+    with form:
+        cols = form.beta_columns(len(columns_name))
+        for ind, col in enumerate(cols):
+            # col.selectbox('{0}'.format(columns_name[ind]), ['click', 'or click'], key='{0}_{1}'.format(i, ind))
+            for k in range(int(n)):
+                col.text_input('{0}_{1}'.format(columns_name[ind],k+1))
+    submit = form.form_submit_button('Submit')
+    
+    if submit:
+        pass
         
 
 # -----------------
