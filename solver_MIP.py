@@ -182,9 +182,10 @@ def SolverMIP(data):
             # e) Any matched driver and passenger should be within a distance of distance limit from each other
             solver.Add(Xs[i][j] * GetDist(locations[i],locations[j]) <= distance_limit)
             
-            # e) Passenger can pay the fare that is charged by the matched driver
-            # solver.Add(Xs[i][j] * fares[i] <= pays[j])
-            solver.Add(Xs[i][j] * fares[i] <= pays[j]*Ps[j])
+            # f) Passenger can pay the fare that is charged by the matched driver
+            if(i!=j):
+                solver.Add(Ps[j]*pays[j] >= Xs[i][j]*fares[i])
+
             
     
     solver.Solve()
