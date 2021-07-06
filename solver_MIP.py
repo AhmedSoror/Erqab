@@ -170,7 +170,7 @@ def SolverMIP(data):
         passengers = [row[i] for row in Xs]
         solver.Add(solver.Sum(passengers) <= 1)
 
-        #c) Every user is either a driver or a passenger
+        #d) Every user is either a driver or a passenger
         solver.Add(Ds[i]+Ps[i] <= 1)
 
         #f) driver_i$ has at least $D\_min\_pass_{i}$ matched passengers
@@ -179,8 +179,8 @@ def SolverMIP(data):
 
     for i in range (len(Xs)):
         for j in range (len(Xs[i])):
-            # d) Any matched driver and passenger should be within a distance of distance\_limit from each other
-            solver.Add(Xs[i][j] * GetDist(locations[i],locations[j])  <= distance_limit)
+            # e) Any matched driver and passenger should be within a distance of distance limit from each other
+            solver.Add(Xs[i][j] * GetDist(locations[i],locations[j]) <= distance_limit)
             
             # e) Passenger can pay the fare that is charged by the matched driver
             # solver.Add(Xs[i][j] * fares[i] <= pays[j])
