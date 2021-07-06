@@ -44,56 +44,57 @@ dictionary_keys = [
 #make a title for your webapp
 st.title("Erqab")
 
-col1, col2 = st.beta_columns(2)
 
 
-with col1:
-    n = st.text_input('Total Number of users')
-with col2:
-    distance_limit = st.text_input('Distance_Limit')
+with st.beta_expander("Input", expanded=True):
+    col1, col2 = st.beta_columns(2)
+    with col1:
+        n = st.text_input('Total Number of users')
+    with col2:
+        distance_limit = st.text_input('Distance_Limit')
 
-if( n and distance_limit):
-    n =int(n)
-    distance_limit = int(distance_limit)
+    if( n and distance_limit):
+        n =int(n)
+        distance_limit = int(distance_limit)
 
-    data_width = n
-    data_height = len(columns_name)
-    
-    data = [0]*data_height
-    for i in range(data_height):
-        data[i]= [0]*data_width
-
-    # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
-    form = st.form(key='Input_Form')
-    with form:
-        cols = form.beta_columns(len(columns_name))
-        for ind, col in enumerate(cols):
-                # col.write("as")
-            for usr in range(int(n)):
-                data[ind][usr] = col.text_input('{0}_{1}'.format(columns_name[ind],usr+1))
-                if(data[ind][usr]):
-                    data[ind][usr] = (int)(data[ind][usr])
-                # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
-
-
-    submit = form.form_submit_button('Submit')
-    
-    if submit:
-        data_dir = {str_n: n, str_dis: distance_limit}     
-
-        for i in range(len(dictionary_keys)):
-            data_dir[dictionary_keys[i]] = data[i]
+        data_width = n
+        data_height = len(columns_name)
         
-        
-        locations_arr = np.vstack((data[-2], data[-1])).T.tolist()
-        data_dir[str_location] = locations_arr 
+        data = [0]*data_height
+        for i in range(data_height):
+            data[i]= [0]*data_width
 
-        # df = pd.DataFrame(data,columns=(columns_name))
-        # st.dataframe(df)
+        # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
+        form = st.form(key='Input_Form')
+        with form:
+            cols = form.beta_columns(len(columns_name))
+            for ind, col in enumerate(cols):
+                    # col.write("as")
+                for usr in range(int(n)):
+                    data[ind][usr] = col.text_input('{0}_{1}'.format(columns_name[ind],usr+1))
+                    if(data[ind][usr]):
+                        data[ind][usr] = (int)(data[ind][usr])
+                    # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
 
-        print(data_dir)    
+
+        submit = form.form_submit_button('Submit')
         
-        print(SolverMIP(data_dir))
+        if submit:
+            data_dir = {str_n: n, str_dis: distance_limit}     
+
+            for i in range(len(dictionary_keys)):
+                data_dir[dictionary_keys[i]] = data[i]
+            
+            
+            locations_arr = np.vstack((data[-2], data[-1])).T.tolist()
+            data_dir[str_location] = locations_arr 
+
+            # df = pd.DataFrame(data,columns=(columns_name))
+            # st.dataframe(df)
+
+            print(data_dir)    
+            
+            print(SolverMIP(data_dir))
 
 # -----------------
 # Read CSV
