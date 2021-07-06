@@ -1,8 +1,9 @@
 import os
 import sys
 import glob
-import numpy as np
 import math
+import time
+import numpy as np
 from random import choices,randint,uniform
 
 
@@ -23,6 +24,9 @@ str_pay = "pay"
 str_fare = "fare"
 # array: the min number of passengers to travel with the driver
 str_min_cap = "minc"
+
+
+
 
 def GetDist(loc_A, loc_B):
     return math.sqrt( math.pow(loc_A[0]-loc_B[0],2) + math.pow(loc_A[1]-loc_B[1],2))
@@ -114,7 +118,11 @@ def fitness_function(n,max_distance,matched,max_pay,min_passenger_fare,min_passe
     driver_sums=matched.sum(1)
     passanger_sums=matched.sum(0)
     
+    total_drivers=0
+    
     for i in range(n):
+        if(driver_sums[i]>=1):
+            total_drivers+=1
         for j in range(n):
             if matched[i][j]==0:
                 continue
@@ -128,10 +136,10 @@ def fitness_function(n,max_distance,matched,max_pay,min_passenger_fare,min_passe
                 return 1
             if passanger_sums[j]>1 or driver_sums[j]>0:
                 return 1
-    return matched.sum()+1
+    return matched.sum()+1+total_drivers
 
 def genatic_algorithm(data):
-    
+    start_time = time.time()
     n=data[str_n]
     max_distance=data[str_dis]
     max_pay=data[str_pay]
@@ -169,8 +177,10 @@ def genatic_algorithm(data):
             next_generation+=[sibiling_1,sibiling_2]
             
         population=next_generation
-    
-    return best_solution,best_solution_value,best_solution_iteration
+        
+    run_time = time.time() - start_time
+   
+    return best_solution,best_solution_value-1,best_solution_iteration
     
 def solve(dir_name):
     for file_name in sorted(glob.glob(dir_name+"/*"),key=len):
@@ -188,5 +198,6 @@ if __name__ == "__main__":
     if not os.path.exists(sys.argv[1]+"_output"):
         os.mkdir("./"+sys.argv[1]+"_output/")  
     solve(sys.argv[1])
+    
     
     
