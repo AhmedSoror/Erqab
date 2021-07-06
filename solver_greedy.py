@@ -148,6 +148,7 @@ def SolverGreedy(data):
             average_cap += capacities[i]
 
     drivers_count = sum(matched)
+    drivers_count =1  if (drivers_count==0) else drivers_count
     average_cap = math.floor(average_cap/drivers_count)
     # ----------------------------------------------------
     # -- too few drivers, start again and use random to get some drivers
@@ -169,7 +170,7 @@ def SolverGreedy(data):
                     drivers.append(i)
                     cars.append([])
                     drivers_count += 1
-            if drivers_count >= math.ceil(n/average_cap)+1:
+            if drivers_count >= math.ceil(n/4)+1:
                 break
     # -------------------------------------------------------
     for k in range(0, drivers_count):  # -- loop over drivers to fill their cars
