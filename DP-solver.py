@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import math
 import re
+import time
 from collections import Counter
 
 
@@ -83,7 +84,15 @@ def ReadTextFile(testFile):
     data[str_location] = locations
     return data
 
+def dp_hash(matched,pos):
+    res=""
+    for i in range(len(matched)):
+        res+= "x" if matched[i]==-1 or matched[i]==i else str(matched[i])
+        
+    return res
+
 def SolverDP(data):
+    start_time=time.time()
     n=data[str_n]
     max_distance=data[str_dis]
     max_pay=data[str_pay]
@@ -92,53 +101,54 @@ def SolverDP(data):
     capacity=data[str_cap]
     locations=data[str_location]
     dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
-    return(SolverDP2(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist,[-1]*n,[0]*n,{}))
-    
-def SolverDP2(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacity,dist,matched,counts,memo):
-    
-    
-    
-    if (str(matched) in memo):
-        return memo[str(matched)]
-    
-    best_sol_1=0
-    best_sol_1_matched=matched
+
+    sol,macthings=SolverDPRec(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist,[-1]*n,[0]*n,{},0)
+    print(sol,macthings)
+    end_time=(time.time()-start_time)*1000
+                
+def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacity,dist,matched,counts,memo,pos):
     
     
-    for i in range(n):
-        if matched[i]==-1:
-            best_sol_2=0
-            best_sol_2_matched=[]
-            for j in range(n):
-                if i==j:continue
-                if matched[j] !=-1 and matched[j] !=j : continue
-                if max_pay[i]>=min_passenger_fare[j] and counts[j]<capacity[j] and dist[i][j]<=max_distance:
-                    new_matched=matched.copy()
-                    new_counts=counts.copy()
-                    new_matched[j]=j
-                    new_matched[i]=j
-                    new_counts[j]=new_counts[j]+1
-                    can_sol,can_sol_matched=SolverDP2(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist, new_matched, new_counts,memo)
-                    can_sol+=1 if matched[j]==j else 2
-                    if can_sol >best_sol_2:
-                        best_sol_2=can_sol
-                        best_sol_2_matched=can_sol_matched
+    if str(matched[:pos-1]) in memo:
+        return memo[str(matched[:pos-1])]
+        
+    if pos==n:
+        return 0,matched
+        
+    
+    best_sol,best_sol_matched=0,matched
+    
+    
+
+    for j in range(n):
+        if pos==j:continue
+        if matched[j] !=-1 and matched[j] !=j : continue
+        if max_pay[pos]>=min_passenger_fare[j] and counts[j]<capacity[j] and dist[pos][j]<=max_distance:
+            new_matched=matched.copy()
+            new_counts=counts.copy()
+            new_matched[j]=j
+            new_matched[pos]=j
+            new_counts[j]=new_counts[j]+1
+            can_sol,can_sol_matched=SolverDPRec(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist, new_matched, new_counts,memo,pos+1)
+            can_sol+=1 if matched[j]==j else 2
+            if can_sol >best_sol:
+                best_sol=can_sol
+                best_sol_matched=can_sol_matched
+    can_sol,can_sol_matched=SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacity,dist,matched,counts,memo,pos+1)     
+    if can_sol >best_sol:
+        best_sol=can_sol
+        best_sol_matched=can_sol_matched
                         
-            if best_sol_2>best_sol_1:
-                best_sol_1=best_sol_2
-                best_sol_1_matched=best_sol_2_matched
-            
-    memo[str(matched)]=best_sol_1,best_sol_1_matched     
+    memo[str(matched[:pos-1])]=best_sol,best_sol_matched
                    
-    return best_sol_1,best_sol_1_matched          
-                
-                
+    return best_sol,best_sol_matched           
     
 
 def main_testfile(test_set):
     testFiles = iter(ReadTestSet(test_set))
     testFile=next(testFiles, None)
     summary=[]
+    
     while testFile != None:
         # get current test file path
         testFile_parent = testFile.split("/")[0]+'_output'
@@ -154,10 +164,11 @@ def main_testfile(test_set):
         # print(sol_MIP)
         
         # ---------------------------------------------------------------------------
-        # ------------------------------ MIP --------------------------------------
+        # ------------------------------ DP --------------------------------------
         # ---------------------------------------------------------------------------
         sol_DP=SolverDP(testCase)
-        print(sol_DP)
+        
+        # print(sol_DP)
         
         # ---------------------------------------------------------------------------
         # ----------------------------- summary -------------------------------------
@@ -169,3 +180,7 @@ if __name__=="__main__":
     if len(sys.argv)>1:
         print(sys.argv[1])
         main_testfile(sys.argv[1])
+    
+    
+    
+    
