@@ -12,6 +12,9 @@ from collections import Counter
 
 sys.setrecursionlimit(500000)
 
+str_cars = "cars"
+str_z = "z"
+
 str_n = "n"
 # distance limit
 str_dis = "dl"
@@ -84,12 +87,22 @@ def ReadTextFile(testFile):
     data[str_location] = locations
     return data
 
-def dp_hash(matched,pos):
-    res=""
+def DP_To_Cars(matched):
+    
+    dictionary={}
+    
     for i in range(len(matched)):
-        res+= "x" if matched[i]==-1 or matched[i]==i else str(matched[i])
-        
-    return res
+        if matched[i]==-1 or i == matched[i]:
+            continue
+        if matched[i] in dictionary:
+            dictionary[matched[i]].append(i)
+        else:
+            dictionary[matched[i]]=[i]
+            
+    return [[key] + val for key, val in dictionary.items()]
+
+    
+    
 
 def SolverDP(data):
     start_time=time.time()
@@ -103,8 +116,16 @@ def SolverDP(data):
     dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
 
     sol,macthings=SolverDPRec(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist,[-1]*n,[0]*n,{},0)
-    print(sol,macthings)
+    
     end_time=(time.time()-start_time)*1000
+    
+    cars_final=DP_To_Cars(macthings)
+    
+    print(macthings)
+    print(cars_final)
+    
+    return {str_z: sol, str_cars: cars_final, "time": end_time}
+
                 
 def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacity,dist,matched,counts,memo,pos):
     
@@ -167,8 +188,7 @@ def main_testfile(test_set):
         # ------------------------------ DP --------------------------------------
         # ---------------------------------------------------------------------------
         sol_DP=SolverDP(testCase)
-        
-        # print(sol_DP)
+        print(sol_DP)
         
         # ---------------------------------------------------------------------------
         # ----------------------------- summary -------------------------------------
@@ -181,6 +201,4 @@ if __name__=="__main__":
         print(sys.argv[1])
         main_testfile(sys.argv[1])
     
-    
-    
-    
+  
