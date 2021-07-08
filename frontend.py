@@ -22,12 +22,20 @@ import numpy as np
 import pandas as pd
 from solver_MIP import SolverMIP
 
+# ----------------
+# Global variables
+# ----------------
 max = "max"
 min_fare = "min_fare"
 min_capacity = "min_capacity"
 capacity = "max_capacity"
 location_x = "location_x"
 location_y = "location_y"
+columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
+ 
+# ----------------
+# dictionary keys
+# ----------------
 
 # total number of users
 str_n = "n"
@@ -45,14 +53,8 @@ str_fare = "fare"
 str_min_cap = "minc"
 # key in output dictionary that holds cars. note: should be changed later on
 str_cars="Xs"
-
-columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
 dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
-# ---------------
-# input
-# N, Distance limit
-# user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
-# ---------------
+
 
 # -----------------------
 # Input Component
@@ -166,12 +168,9 @@ def CSVInput():
         df = df[0].str.split(',', expand=True)
         df
 
-
-    
 # -----------------------
 # Output Component
 # -----------------------
-
 def OutputComponent(data, id=0):
     st.write("Traverllers: {0}".format(data["z"]))
     # display cars
@@ -184,7 +183,7 @@ def OutputComponent(data, id=0):
 # Main page
 # -----------------------
 def main(id=0):
-    # make a title for your webapp
+    # style all buttons to be green by default
     m = st.markdown("""
         <style>
         div.stButton > button:first-child {
@@ -192,13 +191,16 @@ def main(id=0):
         }
         </style>""", unsafe_allow_html=True)
         
+    # make a title for your webapp
     st.title("Erqab")
+    # session id used for reset
     session = SessionState.get(run_id=0)
     
     sidebar = st.sidebar.radio("page",["Single Input", "Upload CSV"],0)
     if(sidebar == "Single Input"):
         SingleInputComponent(session)
     elif (sidebar == "Upload CSV"):
+        # increment session id to reset component
         session.run_id += 1
         CSVInput()
         
@@ -212,54 +214,5 @@ if __name__=="__main__":
 
 
 
-# -----------------
-# Read CSV
-# -----------------
-# path = st.text_input('CSV file path')
-# if path:
-#     df = pd.read_csv(path)
-#     df
-# -------------------------------------------------------
 
 
-# -----------------
-# Display dataframe
-# -----------------
-
-# # Get some data.
-# data = np.random.randn(10, 2)
-
-# # Show the data as a chart.
-# chart = st.line_chart(data)
-
-# start_date = datetime.date(1990, 7, 6)
-# date = st.date_input('Your birthday', start_date)
-
-# if date != start_date:
-#     field_1
-#     field_2
-#     date
-
-
-# Randomly fill a dataframe and cache it
-# @st.cache(allow_output_mutation=True)
-# def get_dataframe():
-#     # max  , min_fare  , min_capacity , capacity , location_x    , location_y
-#     return pd.DataFrame(
-#         np.random.randn(5, len(columns_name)),
-#         columns=(columns_name)
-#         )
-
-
-# df = get_dataframe()
-
-# # Create row, column, and value inputs
-# row = st.number_input('row', max_value=df.shape[0])
-# col = st.number_input('column', max_value=df.shape[1])
-# value = st.number_input('value')
-
-# # Change the entry at (row, col) to the given value
-# df.values[row][col] = value
-
-# # And display the result!
-# st.dataframe(df)
