@@ -2,13 +2,19 @@
 # -----------------
 # to do
 # -----------------
-# view output records
+# 1) extract data from CSV
+# 2) solve multiple instance
+# 3) display multiple outputs
+# 4) 
+
 # View input and output on the map
-
-# limit input to 10 users, more than that => read from csv
+# view output records
 # validate inputs
-
-
+# limit input to 10 users, more than that => read from csv
+# 
+# -------------------------------------------------------
+# -------------------------------------------------------
+# -------------------------------------------------------
 import streamlit as st
 import SessionState 
 import datetime
@@ -127,12 +133,12 @@ def InputComponent(id=0):
                         data[ind][usr] = (int)(data[ind][usr])
                     # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
 
-        m = st.markdown("""
-        <style>
-        div.stButton > button:first-child {
-            background-color: rgb(70, 187, 26);
-        }
-        </style>""", unsafe_allow_html=True)
+        # m = st.markdown("""
+        # <style>
+        # div.stButton > button:first-child {
+        #     background-color: rgb(70, 187, 26);
+        # }
+        # </style>""", unsafe_allow_html=True)
 
         
         solver_select = st.selectbox('Solver', ["Greedy","MIP","Meta","DP"], key="solver_select")
@@ -159,6 +165,9 @@ def CSVInput():
         df = pd.read_csv(path, header=None, sep='\n')
         df = df[0].str.split(',', expand=True)
         df
+
+
+    
 # -----------------------
 # Output Component
 # -----------------------
@@ -176,6 +185,13 @@ def OutputComponent(data, id=0):
 # -----------------------
 def main(id=0):
     # make a title for your webapp
+    m = st.markdown("""
+        <style>
+        div.stButton > button:first-child {
+            background-color: rgb(70, 187, 26);
+        }
+        </style>""", unsafe_allow_html=True)
+        
     st.title("Erqab")
     session = SessionState.get(run_id=0)
     
