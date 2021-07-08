@@ -2,8 +2,6 @@
 # -----------------
 # to do
 # -----------------
-# view results
-# reset button
 # view output records
 # View input and output on the map
 
@@ -39,6 +37,8 @@ str_pay = "pay"
 str_fare = "fare"
 # array: the min number of passengers to travel with the driver
 str_min_cap = "minc"
+# key in output dictionary that holds cars. note: should be changed later on
+str_cars="Xs"
 
 columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
 dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
@@ -146,22 +146,29 @@ def InputComponent(id=0):
                 sol = SolverMIP(data_dir)
                 return sol
 
+def SingleInputComponent(session):
+    if st.button("Reset"):
+        session.run_id += 1
+    sol = InputComponent(session.run_id)
+    if sol:
+        OutputComponent(sol, session.run_id)
 
+def CSVInput():
+    path = st.text_input('CSV file path')
+    if path:
+        df = pd.read_csv(path, header=None, sep='\n')
+        df = df[0].str.split(',', expand=True)
+        df
 # -----------------------
 # Output Component
 # -----------------------
 
-def OutputComponent():
-    # df = pd.DataFrame( np.random.randn(5, len(columns_name)), columns=(columns_name))
-    # data = {'z': 8, 'cars': ["1,2", "3,4,5","7,8"], 'time': 0.0077669620513916016}
-    data = {'z': 8, 'Xs': [[1,2], [3,4,5],[7,8]], 'time': 0.0077669620513916016}
-    data_1 = {"cars":data["Xs"]}
-    df = pd.DataFrame.from_dict(data)
-    st.dataframe(df)
+def OutputComponent(data, id=0):
+    st.write("Traverllers: {0}".format(data["z"]))
+    # display cars
+    data_1 = {"Cars":data[str_cars]}
     df = pd.DataFrame.from_dict(data_1)
     st.dataframe(df)
-    # Create row, column, and value inputs
-
 
 
 # -----------------------
@@ -171,27 +178,14 @@ def main(id=0):
     # make a title for your webapp
     st.title("Erqab")
     session = SessionState.get(run_id=0)
-    if st.button("Reset"):
+    
+    sidebar = st.sidebar.radio("page",["Single Input", "Upload CSV"],0)
+    if(sidebar == "Single Input"):
+        SingleInputComponent(session)
+    elif (sidebar == "Upload CSV"):
         session.run_id += 1
-    
-    sol = InputComponent(session.run_id)
-    if sol:
-        print(sol)
-        OutputComponent(session.run_id)
-    
-    
-    
-    
-    # sidebar = st.sidebar.radio("page",["Input", "Output"],0)
-    # if(sidebar == "Input"):
-    #     state = 1
-    # elif (sidebar == "Output"):
-    #     state = 2
-    # if(state == 1):
-    #     sol = InputComponent()
-    #     print(sol)
-    # else:
-    #     OutputComponent()
+        CSVInput()
+        
     
 
 # -----------------------
