@@ -12,6 +12,7 @@
 
 
 import streamlit as st
+import SessionState 
 import datetime
 import numpy as np
 import pandas as pd
@@ -46,8 +47,6 @@ dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 # N, Distance limit
 # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
 # ---------------
-
-
 
 # -----------------------
 # Input Component
@@ -99,16 +98,15 @@ def InputComponent_old():
 
             if submit:
                 data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
-                print(data_dir)
                 sol = SolverMIP(data_dir)
                 return sol
 
-def InputComponent():
+def InputComponent(id=0):
     col1, col2 = st.beta_columns(2)
     with col1:
-        n = st.text_input('Total Number of users')
+        n = st.text_input('Total Number of users', key="n_{0}".format(id))
     with col2:
-        distance_limit = st.text_input('Distance_Limit')
+        distance_limit = st.text_input('Distance_Limit', key="dl_{0}".format(id))
 
     if(n and distance_limit):
         n = int(n)
@@ -124,8 +122,7 @@ def InputComponent():
             with st.beta_expander("users {0}".format(usr+1), expanded=False):
                 cols = st.beta_columns(len(columns_name))
                 for ind, col in enumerate(cols):
-                    data[ind][usr] = col.text_input(label='{0}'.format(
-                        columns_name[ind], usr+1), key='{0}_{1}'.format(columns_name[ind], usr+1))
+                    data[ind][usr] = col.text_input(label='{0}'.format(columns_name[ind], usr+1), key='{0}_{1}_{2}'.format(columns_name[ind], usr+1, id))
                     if(data[ind][usr]):
                         data[ind][usr] = (int)(data[ind][usr])
                     # col.selectbox('{0}'.format(columns_name[ind]), [i for i in range(10)], key='{0}_{1}'.format(columns_name[ind],k+1))
@@ -146,7 +143,6 @@ def InputComponent():
             # st.dataframe(df)
             data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
             if solver_select == "MIP" :
-                print(data_dir)
                 sol = SolverMIP(data_dir)
                 return sol
 
@@ -171,24 +167,32 @@ def OutputComponent():
 # -----------------------
 # Main page
 # -----------------------
-def main():
+def main(id=0):
     # make a title for your webapp
     st.title("Erqab")
+    session = SessionState.get(run_id=0)
+    if st.button("Reset"):
+        session.run_id += 1
     
-    
-    sidebar = st.sidebar.radio("page",["Input", "Output"],0)
-    if(sidebar == "Input"):
-        # read input
-        state = 1
-
-    elif (sidebar == "Output"):
-        state = 2
-    
-    if(state == 1):
-        sol = InputComponent()
+    sol = InputComponent(session.run_id)
+    if sol:
         print(sol)
-    else:
-        OutputComponent()
+        OutputComponent(session.run_id)
+    
+    
+    
+    
+    # sidebar = st.sidebar.radio("page",["Input", "Output"],0)
+    # if(sidebar == "Input"):
+    #     state = 1
+    # elif (sidebar == "Output"):
+    #     state = 2
+    # if(state == 1):
+    #     sol = InputComponent()
+    #     print(sol)
+    # else:
+    #     OutputComponent()
+    
 
 # -----------------------
 # -----------------------
