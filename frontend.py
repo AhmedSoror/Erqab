@@ -26,6 +26,7 @@ from solver_MIP import ReadCSV
 # ----------------
 # Global variables
 # ----------------
+EPS =10e-8
 max = "max"
 min_fare = "min_fare"
 min_capacity = "min_capacity"
@@ -68,11 +69,11 @@ def SolveInstance(data, solver_select):
     if solver_select == solver_MIP :
         sol = SolverMIP(data)
     # elif solver_select == solver_Greedy :
-    #     sol.append(SolverGreedy(data))
+        # sol = SolverGreedy(data)
     # elif solver_select == solver_DP :
-    #     sol.append(SolverDP(data))
+    #     sol = SolverDP(data)
     # else:
-    #     sol.append(SolverMeta(data))
+    #     sol = SolverMeta(data)
     return sol
 
 def SolveBulk(bulk_data, solver_select):
@@ -96,9 +97,7 @@ def GetInputDict(data_input):
 
     return data_dir
 
-def CSVInput(session):
-    # if st.button("Reset"):
-    #     session.run_id += 1
+def CSVInput():
     path = st.text_input('CSV file path')
     if path:
         return ReadCSV(path)
@@ -209,6 +208,15 @@ def OutputComponent(data, id=0):
     # display cars
     data_1 = {"Cars":data[str_cars]}
     df = pd.DataFrame.from_dict(data_1)
+    
+    print(type(data[str_cars]))
+    
+    # print(np.array(data[str_cars]).astype(int))
+    
+    # drop rows with only 0s
+    a_series = (df != 0).any(axis=1)
+    df_noZeros = df.loc[a_series]
+    
     st.dataframe(df)
 
 
@@ -235,7 +243,7 @@ def main(id=0):
     elif (sidebar == "Upload CSV"):
         # increment session id to reset component
         session.run_id += 1
-        bulk_data = CSVInput(session)
+        bulk_data = CSVInput()
         if bulk_data:
             solutions = SolveBulk(bulk_data, solver_MIP)
             if solutions:
