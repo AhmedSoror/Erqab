@@ -8,18 +8,11 @@ import re
 import time
 from collections import Counter
 from random import choices,randint,uniform
-from random import choice
 
 
-INVALID = 0
 
-str_cars = "cars"
-str_z = "z"
-
-POPULATIION_SIZE=80
-NUMBER_OF_GENERATIONS=100
-MUTATION_PROBABILITY=0.7
-
+POPULATIION_SIZE=20
+NUMBER_OF_GENERATIONS=500
 
 str_n = "n"
 # distance limit
@@ -166,15 +159,6 @@ def SolverGreedy(data):
 
     return {str_z: z, str_cars: cars_final, "time": run_time}
 
-def Greedy_To_Meta(data):
-    greedy_sol=SolverGreedy(data)[str_cars]
-    matched=[-1]*data[str_n]
-    for pool in greedy_sol:
-        driver=pool[0]
-        for passenger in pool:
-            matched[passenger]=driver
-    return matched
-
 def Meta_To_Cars(matched):
     
     dictionary={}
@@ -189,31 +173,32 @@ def Meta_To_Cars(matched):
             
     return [[key] + val for key, val in dictionary.items()]
 
-def mutation_function(matched,n,max_pay,min_passenger_fare):
+def mutation_function(matched,n):
     r=uniform(0, 1)
-    if r>MUTATION_PROBABILITY:
+    if r>0.5:
         return
-    
-    passengers=np.where(matched!=-1)[0]
-    passengers=passengers[matched[passengers]!=passengers]   ## remove drivers 
-    
-    for i in range(len(passengers)):
-        driver_1= matched[passengers[i]]
-        passanger_1=passengers[i]
-        for j in range(i+1,len(passengers)):
-            driver_2= matched[passengers[j]]
-            passanger_2=passengers[j]
-            
-            if max_pay[passanger_1] >= min_passenger_fare[driver_2] and max_pay[passanger_2] >=min_passenger_fare[driver_1]:
-                matched[passanger_1]=driver_2
-                matched[passanger_2]=driver_1
-                return
+    indices=np.where(matched==1)
+    if(len(indices[0])==0 or len(indices[0])==1):
+        index_1,index_2=np.random.randint(n-1,size=2)
+        matched[index_1][index_2]=1
+        return
+        
+    # if len(indices[0])==1:
+    #     matched[indices[0][0]][indices[1][0]]= abs(matched[indices[0][0]][indices[1][0]]-1)
+    #     return
+        
+    index_1,index_2=np.random.randint(len(indices[0]),size=2)
+    x1,y1=indices[0][index_1],indices[1][index_1]
+    x2,y2=indices[0][index_2],indices[1][index_2]
+    matched[x2][y1]=1
+    matched[x1][y2]=1
+    matched[x1][y1]=0
+    matched[x2][y2]=0
 
 def crossover_function(parent_1,parent_2,n):
     index=randint(1, n-1)
     sibiling_1=np.append(parent_1[:index],parent_2[index:],axis=0)
-    sibiling_2=np.append(parent_2[:index],parent_1[index:],axis=0)
-    
+    sibiling_2=np.append(parent_1[index:],parent_2[:index],axis=0)
     return sibiling_1,sibiling_2
        
 def parent_selection(n,max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist,population):
@@ -235,49 +220,36 @@ def generate_solution(n):
     
 def fitness_function(n,max_distance,matched,max_pay,min_passenger_fare,min_passengers,capacity,dist):
     
-    res=1
+    driver_sums=matched.sum(1)
+    passanger_sums=matched.sum(0)
     
-    driver_dict={}
     
     for i in range(n):
-        passanger=i
-        driver=matched[passanger]
         
-        if driver==-1: ## passenger not yet matched
-            continue
-        
-        if matched[driver] != driver: ## driver matched with someone else
+        if(driver_sums[i]==0):
+            continue    
+            
+        if driver_sums[i]-matched[i][i]>capacity[i]:
+            return 1
+
+        if driver_sums[i]-matched[i][i]<min_passengers[i]:
+            return 1
+        if passanger_sums[i]-matched[i][i]>0:
             return 1
         
-        
-        res+=1
-        if driver not in driver_dict:
-            driver_dict[driver]=[]
-        driver_dict[driver].append(passanger)
-        
-        if driver==passanger:
-            continue
-        
-        if max_pay[passanger] < min_passenger_fare[driver]: ## passenger doesnt have driver fare
-            return 1
-        
-        if dist[passanger][driver]> max_distance: ##distance between passenger and driver is more than max distance
-            return 1
-        
-       
-    
-    for driver in driver_dict:
-        num_passangers=len(driver_dict[driver])-1
-        
-        if num_passangers==0:
-            res-=1
-        
-        if num_passangers >capacity[driver]:
-            return 1
-        if num_passangers < min_passengers[driver]:
-            return 1
-    return res
-        
+        for j in range(n):
+            if matched[i][j]==0 or i==j:
+                continue
+            if max_pay[j]<min_passenger_fare[i]:
+                return 1
+            if dist[i][j]>max_distance:
+                return 1 
+            if passanger_sums[j]>1:
+                return 1
+            if driver_sums[j]>0:
+                return 1
+    return matched.sum()-matched.trace()+1
+
 def genatic_algorithm(data):
     start_time = time.time()
     n=data[str_n]
@@ -289,17 +261,15 @@ def genatic_algorithm(data):
     locations=data[str_location]
     dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
     
-    greedy_solution=Greedy_To_Meta(data)
     
-    
-    population= [Greedy_To_Meta(data) for _ in range(POPULATIION_SIZE)]
-    best_solution=population[0]
+    population=generate_population(n)
+    best_solution=generate_solution(n)
     best_solution_value=fitness_function(n, max_distance, best_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)
     best_solution_iteration=0
     
-    
-    
     for i in range(1,NUMBER_OF_GENERATIONS+1):
+        
+        population=sorted(population,key=lambda matched:fitness_function(n, max_distance, matched, max_pay, min_passenger_fare, min_passengers, capacity, dist),reverse=True)
         
         population_best=population[0]
         population_best_value=fitness_function(n, max_distance, population_best, max_pay, min_passenger_fare, min_passengers, capacity, dist)
@@ -309,30 +279,20 @@ def genatic_algorithm(data):
             best_solution_value=population_best_value
             best_solution_iteration=i
         
-        
         next_generation=population[:2]
         
         for _ in range (int(POPULATIION_SIZE/2) -1):
             parent_1,parent_2=parent_selection(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist, population)
             sibiling_1,sibiling_2=crossover_function(parent_1, parent_2, n)
-            mutation_function(sibiling_1,n,max_pay,min_passenger_fare)
-            mutation_function(sibiling_2,n,max_pay,min_passenger_fare)
+            mutation_function(sibiling_1,n)
+            mutation_function(sibiling_2,n)
             next_generation+=[sibiling_1,sibiling_2]
-           
             
-        next_generation=sorted(next_generation,key=lambda matched:fitness_function(n, max_distance, matched, max_pay, min_passenger_fare, min_passengers, capacity, dist),reverse=True)
         population=next_generation
         
     run_time = time.time() - start_time
-    # cars_final=
    
-    # print(greedy_solution,fitness_function(n, max_distance, greedy_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)-1)
-    return {best_solution_value-1: z, str_cars: cars_final, "time": run_time}
-
-    return best_solution,best_solution_value-1,best_solution_iteration,run_time
-    
-def GetDist(loc_A, loc_B):
-    return math.sqrt(math.pow(loc_A[0]-loc_B[0], 2) + math.pow(loc_A[1]-loc_B[1], 2))
+    return best_solution,best_solution_value-1,best_solution_iteration
     
 def main_testfile(test_set):
     testFiles = iter(ReadTestSet(test_set))
@@ -340,7 +300,6 @@ def main_testfile(test_set):
     summary=[]
     
     while testFile != None:
-        print(testFile)
         # get current test file path
         testFile_parent = testFile.split("/")[0]+'_output'
         testFile_name = testFile.split("/")[-1]
@@ -349,17 +308,10 @@ def main_testfile(test_set):
         testCase = ReadTextFile(testFile)
         
         # ---------------------------------------------------------------------------
-        # ----------    -------------------- MIP --------------------------------------
+        # ------------------------------ MIP --------------------------------------
         # ---------------------------------------------------------------------------
         # sol_MIP = SolverMIP(testCase)
         # print(sol_MIP)
-        
-        # ---------------------------------------------------------------------------
-        # ------------------------------ Greedy --------------------------------------
-        # ---------------------------------------------------------------------------
-        # sol_Greedy = SolverGreedy(testCase)
-        # print(sol_Greedy)
-        
         
         # ---------------------------------------------------------------------------
         # ------------------------------ DP --------------------------------------
@@ -373,7 +325,6 @@ def main_testfile(test_set):
         sol_Meta=genatic_algorithm(testCase)
         print(sol_Meta)
         
-        
         # ---------------------------------------------------------------------------
         # ----------------------------- summary -------------------------------------
         # ---------------------------------------------------------------------------
@@ -381,12 +332,22 @@ def main_testfile(test_set):
         testFile=next(testFiles, None)
 
 if __name__=="__main__": 
-    if len(sys.argv)>1:
-        print(sys.argv[1])
-        main_testfile(sys.argv[1])
-   
-
+    # if len(sys.argv)>1:
+    #     print(sys.argv[1])
+    #     main_testfile(sys.argv[1])
     
     
     
     
+    x=np.array([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 1.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
+    
+    print(x.trace())
