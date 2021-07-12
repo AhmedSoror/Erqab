@@ -93,7 +93,7 @@ def ReadTextFile(testFile, delimiter=" "):
             min_pass.append(user[2])
             capacities.append(user[3])
             locations.append((user[4],user[5]))
-        f.close()
+        f.close()   
             
     data[str_pay] = maxs
     data[str_fare] = min_fare
@@ -103,6 +103,51 @@ def ReadTextFile(testFile, delimiter=" "):
     
     return data
 
+
+def ReadCSV(testFile):
+    print("Reading test file: {0}".format(testFile))
+    delimiter=","
+    
+    with open(testFile) as f:
+        # add n, m to data
+        data_arr=[]
+        while True:
+            file_line = f.readline()
+            if not file_line:
+                break        
+        
+            line = file_line.replace("\n","")
+            data = line.split(delimiter)
+            
+            data = {str_n: int(data[0]), str_dis: int(data[1])}
+            
+            
+            # read constraints 
+            maxs=[]
+            min_fare=[]
+            min_pass=[]
+            capacities=[]
+            locations = []
+
+            for i in range(data[str_n]):
+                user=ReadLine(f,delimiter)
+                maxs.append(user[0])
+                min_fare.append(user[1])
+                min_pass.append(user[2])
+                capacities.append(user[3])
+                locations.append((user[4],user[5]))
+                
+            data[str_pay] = maxs
+            data[str_fare] = min_fare
+            data[str_min_cap] = min_pass
+            data[str_cap] = capacities
+            data[str_location] = locations
+
+            data_arr.append(data)
+        f.close()   
+    return data_arr
+    
+    
 
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Solver -----------------------------------------------------------
@@ -237,4 +282,5 @@ if __name__=="__main__":
         main_testfile(sys.argv[1])
     else:
         testFile = "/media/lenovo/Local_D/GUC/10th Semester/(CSEN1113) Optimization Algorithms/Project_repo/Erqab/test_1/tst.csv"
-        print(ReadTextFile(testFile, delimiter=","))
+        arr = ReadCSV(testFile)
+        
