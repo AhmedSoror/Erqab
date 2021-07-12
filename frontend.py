@@ -58,7 +58,7 @@ str_fare = "fare"
 # array: the min number of passengers to travel with the driver
 str_min_cap = "minc"
 # key in output dictionary that holds cars. note: should be changed later on
-str_cars="Xs"
+str_cars = "cars"
 dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 
 
@@ -205,6 +205,7 @@ def SingleInputComponent(session):
 # -----------------------
 def OutputComponent(data, id=0):
     st.write("Traverllers: {0}".format(data["z"]))
+    print(data)
     # display cars
     data_1 = {"Cars":data[str_cars]}
     df = pd.DataFrame.from_dict(data_1)
