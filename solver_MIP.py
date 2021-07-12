@@ -18,6 +18,8 @@ sys.setrecursionlimit(500000)
 # --------------------------------------------------------------------------------------------------------------
 # -------------------------------------------  Globals  --------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
+str_cars = "cars"
+str_z = "z"
 EPS =10e-8
 INF = 10e18
 # total number of users
@@ -41,8 +43,8 @@ str_min_cap = "minc"
 # N, Distance limit
 # user i    :  max  , min_fare  , min_capacity , capacity , location_x    , location_y
 # ---------------------------------------------------------------------------------------
-# driver    :  -inf , min_fare  , min_capacity , capacity , location_x    , location_y
-# Passenger :  max  ,   inf     ,       0        ,  0       , location_x    , location_y
+# driver    :  0 , min_fare  , min_capacity , capacity , location_x    , location_y
+# Passenger :  max  ,   0     ,       0        ,  0       , location_x    , location_y
 
 # --------------------------------------------------------------------------------------------------------------
 
@@ -104,6 +106,21 @@ def ReadTextFile(testFile):
     return data
 
 
+def MatchesToCars(matches):
+    x = np.array(matches)
+    x = x[~np.all(x == 0, axis=1)]
+    cars = []
+    for arr in x:
+        c = 0
+        car=[]
+        for i in arr:
+            c+=1
+            if i==1:
+                car.append(c)
+        cars.append(car)
+    return cars
+    
+    
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Solver -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
@@ -196,12 +213,10 @@ def SolverMIP(data):
         Ds_values.append(Ds[i].solution_value())
         Ps_values.append(Ps[i].solution_value())
         for j in range (len(Xs[i])):
-            Xs_values[i].append(Xs[i][j].solution_value())
-    
-    
-    # dic = getFacWH(Xs_values)
-    print("Ps:{0} \nDs:{1}".format(Ps_values,Ds_values))
-    return {"z":round(solver.Objective().Value()), "Xs": Xs_values,"time":run_time}
+            Xs_values[i].append((int)(Xs[i][j].solution_value()))
+        
+    cars_arr = MatchesToCars(Xs_values)
+    return {str_z:round(solver.Objective().Value()), str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
     
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Main -----------------------------------------------------------
