@@ -2,8 +2,6 @@
 # -----------------
 # to do
 # -----------------
-# 1) extract data from CSV
-# 2) solve multiple instance
 # 3) display multiple outputs
 # 4) 
 
@@ -22,6 +20,8 @@ import numpy as np
 import pandas as pd
 from solver_MIP import SolverMIP
 from solver_MIP import ReadCSV
+import os
+from io import StringIO
 
 # ----------------
 # Global variables
@@ -97,13 +97,16 @@ def GetInputDict(data_input):
 
     return data_dir
 
+
 def CSVInput():
-    path = st.text_input('CSV file path')
+    # # path = st.text_input('CSV file path')
+    path = st.file_uploader("Choose a file",type=['csv'])
     if path:
-        return ReadCSV(path)
-        # df = pd.read_csv(path, header=None, sep='\n')
-        # df = df[0].str.split(',', expand=True)
-        # df
+        # return ReadCSV(stringio)
+        df = pd.read_csv(path, header=None, sep='\n')
+        df = df[0].str.split(',', expand=True)
+        st.write(df)
+        print(df)
 
 def InputComponent_old():
     with st.beta_expander("Input", expanded=True):
@@ -238,7 +241,7 @@ def main(id=0):
     # session id used for reset
     session = SessionState.get(run_id=0)
     
-    sidebar = st.sidebar.radio("page",["Single Input", "Upload CSV"],0)
+    sidebar = st.sidebar.radio("page",["Single Input", "Upload CSV"],1)
     if(sidebar == "Single Input"):
         SingleInputComponent(session)
     elif (sidebar == "Upload CSV"):
