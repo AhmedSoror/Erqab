@@ -12,7 +12,7 @@ from contextlib import contextmanager
 import time
 import math
 import re
-
+import pandas as pd
 sys.setrecursionlimit(500000)
 
 # --------------------------------------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ def ReadTestSet(test_set):
     testFiles.sort(reverse=False, key=sortFile)
     return testFiles
 
-def ReadLine(file):
-    line = file.readline()
-    data = line.split(" ")
+def ReadLine(file,delimiter=" "):
+    line = file.readline().replace("\n","")
+    data = line.split(delimiter)
     # remove "\n"
     # data[-1] = int(data[-1][0:-1])
     # convert to int
@@ -69,15 +69,15 @@ def ReadLine(file):
         data[i] = int(data[i])
     return data
 
-def Get_N_Dist(file):
-    data = ReadLine(file)
+def Get_N_Dist(file, delimiter=" "):
+    data = ReadLine(file, delimiter)
     return {str_n: data[0], str_dis: data[1]}
 
-def ReadTextFile(testFile):
+def ReadTextFile(testFile, delimiter=" "):
     print("Reading test file: {0}".format(testFile))
     with open(testFile) as f:
         # add n, m to data
-        data = Get_N_Dist(f)
+        data = Get_N_Dist(f, delimiter)
         
         # read constraints 
         maxs=[]
@@ -87,7 +87,7 @@ def ReadTextFile(testFile):
         locations = []
 
         for i in range(data[str_n]):
-            user=ReadLine(f)
+            user=ReadLine(f,delimiter)
             maxs.append(user[0])
             min_fare.append(user[1])
             min_pass.append(user[2])
@@ -235,4 +235,6 @@ if __name__=="__main__":
     if len(sys.argv)>1:
         print(sys.argv[1])
         main_testfile(sys.argv[1])
-    
+    else:
+        testFile = "/media/lenovo/Local_D/GUC/10th Semester/(CSEN1113) Optimization Algorithms/Project_repo/Erqab/test_1/tst.csv"
+        print(ReadTextFile(testFile, delimiter=","))
