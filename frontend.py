@@ -33,6 +33,10 @@ location_x = "location_x"
 location_y = "location_y"
 columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
  
+solver_Greedy ="Greedy"
+solver_MIP ="MIP"
+solver_Meta ="Meta"
+solver_DP ="DP"
 # ----------------
 # dictionary keys
 # ----------------
@@ -54,6 +58,27 @@ str_min_cap = "minc"
 # key in output dictionary that holds cars. note: should be changed later on
 str_cars="Xs"
 dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
+
+
+# -----------------------
+# Solve
+# -----------------------
+def SolveInstance(data, solver_select):
+    if solver_select == solver_MIP :
+        sol = SolverMIP(data)
+    # elif solver_select == solver_Greedy :
+    #     sol.append(SolverGreedy(data))
+    # elif solver_select == solver_DP :
+    #     sol.append(SolverDP(data))
+    # else:
+    #     sol.append(SolverMeta(data))
+    return sol
+
+def SolveBulk(bulk_data, solver_select):
+    sol = []
+    for data in bulk_data:
+        sol.append(SolveInstance(data, solver_select))
+    return sol
 
 
 # -----------------------
@@ -143,16 +168,14 @@ def InputComponent(id=0):
         # </style>""", unsafe_allow_html=True)
 
         
-        solver_select = st.selectbox('Solver', ["Greedy","MIP","Meta","DP"], key="solver_select")
+        solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
 
         mip_but = st.button('solve')
         if(mip_but):
             # df = pd.DataFrame(data,columns=(columns_name))
             # st.dataframe(df)
             data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
-            if solver_select == "MIP" :
-                sol = SolverMIP(data_dir)
-                return sol
+            return SolveInstance(data_dir, solver_select)
 
 def SingleInputComponent(session):
     if st.button("Reset"):
@@ -167,6 +190,11 @@ def CSVInput():
         df = pd.read_csv(path, header=None, sep='\n')
         df = df[0].str.split(',', expand=True)
         df
+
+
+
+
+
 
 # -----------------------
 # Output Component
