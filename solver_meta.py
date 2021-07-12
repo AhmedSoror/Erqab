@@ -324,12 +324,10 @@ def genatic_algorithm(data):
         population=next_generation
         
     run_time = time.time() - start_time
-    # cars_final=
-   
-    # print(greedy_solution,fitness_function(n, max_distance, greedy_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)-1)
-    return {best_solution_value-1: z, str_cars: cars_final, "time": run_time}
+    cars_final=Meta_To_Cars(best_solution)
+    return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
 
-    return best_solution,best_solution_value-1,best_solution_iteration,run_time
+
     
 def GetDist(loc_A, loc_B):
     return math.sqrt(math.pow(loc_A[0]-loc_B[0], 2) + math.pow(loc_A[1]-loc_B[1], 2))
