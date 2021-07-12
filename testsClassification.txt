@@ -3,3 +3,5 @@ test4 for testing distance constraint -- since user at 20 20 is far from all use
 test5 for testing money constraint -- last user will not be matched with any
 test6 for testing capacity constraint -- only one of the last 2 users will will be matched with the 3rd user from the end
 test7 for comparing time for all solvers -- the optimal is 28 which should be returned by dp and mip while greedy should be faster than both 
+test8 same as test 7 but should return 74
+test9 same as test 7 but should return 524
