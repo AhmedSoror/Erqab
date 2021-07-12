@@ -21,6 +21,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from solver_MIP import SolverMIP
+from solver_MIP import ReadCSV
 
 # ----------------
 # Global variables
@@ -94,6 +95,16 @@ def GetInputDict(data_input):
     data_dir[str_location] = locations_arr
 
     return data_dir
+
+def CSVInput(session):
+    # if st.button("Reset"):
+    #     session.run_id += 1
+    path = st.text_input('CSV file path')
+    if path:
+        return ReadCSV(path)
+        # df = pd.read_csv(path, header=None, sep='\n')
+        # df = df[0].str.split(',', expand=True)
+        # df
 
 def InputComponent_old():
     with st.beta_expander("Input", expanded=True):
@@ -184,12 +195,6 @@ def SingleInputComponent(session):
     if sol:
         OutputComponent(sol, session.run_id)
 
-def CSVInput():
-    path = st.text_input('CSV file path')
-    if path:
-        df = pd.read_csv(path, header=None, sep='\n')
-        df = df[0].str.split(',', expand=True)
-        df
 
 
 
@@ -230,7 +235,13 @@ def main(id=0):
     elif (sidebar == "Upload CSV"):
         # increment session id to reset component
         session.run_id += 1
-        CSVInput()
+        bulk_data = CSVInput(session)
+        if bulk_data:
+            solutions = SolveBulk(bulk_data, solver_MIP)
+            if solutions:
+                for sol in solutions:
+                    OutputComponent(sol, session.run_id)
+
         
 # -----------------------
 # -----------------------
