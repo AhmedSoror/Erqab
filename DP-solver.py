@@ -101,9 +101,6 @@ def DP_To_Cars(matched):
             
     return [[key] + val for key, val in dictionary.items()]
 
-    
-    
-
 def SolverDP(data):
     start_time=time.time()
     n=data[str_n]
@@ -121,8 +118,7 @@ def SolverDP(data):
     
     cars_final=DP_To_Cars(macthings)
     
-    print(macthings)
-    print(cars_final)
+
     
     return {str_z: sol, str_cars: cars_final, "time": end_time}
 
