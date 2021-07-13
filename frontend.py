@@ -258,7 +258,7 @@ def main(id=0):
         # increment session id to reset component
         session.run_id += 1
         bulk_data = CSVInput()
-        print("L256_ session: {0}".format(session.run_id))
+        # print("L256_ session: {0}".format(session.run_id))
                 
 
         
