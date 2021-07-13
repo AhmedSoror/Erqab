@@ -132,9 +132,9 @@ def MatchesToCars(matches):
         cars.append(car)
     return cars
     
-def inp(dataPath):
-    df = pd.read_csv(dataPath, header=None, sep='\n')
-    df = df[0].str.split(',', expand=True)
+def ReadDF(df):
+    # df = pd.read_csv(dataPath, header=None, sep='\n')
+    # df = df[0].str.split(',', expand=True)
     out=[]
     df = df.to_numpy()
 
@@ -561,6 +561,8 @@ def genatic_algorithm(data):
     cars_final=Meta_To_Cars(best_solution)
     return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
      
+def SolverMeta(data):
+    return genatic_algorithm(data)
 # --------------------------------------------------------------------------------------------------------------
 # ------------------------------------------- Main -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
