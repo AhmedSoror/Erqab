@@ -12,7 +12,7 @@ from contextlib import contextmanager
 import time
 import math
 import re
-
+import pandas as pd
 sys.setrecursionlimit(500000)
 
 # --------------------------------------------------------------------------------------------------------------
@@ -61,9 +61,9 @@ def ReadTestSet(test_set):
     testFiles.sort(reverse=False, key=sortFile)
     return testFiles
 
-def ReadLine(file):
-    line = file.readline()
-    data = line.split(" ")
+def ReadLine(file,delimiter=" "):
+    line = file.readline().replace("\n","")
+    data = line.split(delimiter)
     # remove "\n"
     # data[-1] = int(data[-1][0:-1])
     # convert to int
@@ -71,15 +71,15 @@ def ReadLine(file):
         data[i] = int(data[i])
     return data
 
-def Get_N_Dist(file):
-    data = ReadLine(file)
+def Get_N_Dist(file, delimiter=" "):
+    data = ReadLine(file, delimiter)
     return {str_n: data[0], str_dis: data[1]}
 
-def ReadTextFile(testFile):
+def ReadTextFile(testFile, delimiter=" "):
     print("Reading test file: {0}".format(testFile))
     with open(testFile) as f:
         # add n, m to data
-        data = Get_N_Dist(f)
+        data = Get_N_Dist(f, delimiter)
         
         # read constraints 
         maxs=[]
@@ -89,13 +89,13 @@ def ReadTextFile(testFile):
         locations = []
 
         for i in range(data[str_n]):
-            user=ReadLine(f)
+            user=ReadLine(f,delimiter)
             maxs.append(user[0])
             min_fare.append(user[1])
             min_pass.append(user[2])
             capacities.append(user[3])
             locations.append((user[4],user[5]))
-        f.close()
+        f.close()   
             
     data[str_pay] = maxs
     data[str_fare] = min_fare
@@ -214,8 +214,8 @@ def SolverMIP(data):
         Ps_values.append(Ps[i].solution_value())
         for j in range (len(Xs[i])):
             Xs_values[i].append((int)(Xs[i][j].solution_value()))
-        
     cars_arr = MatchesToCars(Xs_values)
+
     return {str_z:round(solver.Objective().Value()), str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
     
 # --------------------------------------------------------------------------------------------------------------
@@ -251,3 +251,4 @@ if __name__=="__main__":
         print(sys.argv[1])
         main_testfile(sys.argv[1])
     
+        
