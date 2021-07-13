@@ -107,6 +107,13 @@ def CSVInput(id=0):
         path.seek(0)
         df = df[0].str.split(',', expand=True)
         bulk_data = ReadDF(df)
+        if bulk_data:
+            solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
+            solve_but = st.button('solve')
+            if(solve_but):
+                solutions = SolveBulk(bulk_data, solver_select)
+                if solutions:
+                    OutputBulk(solutions, id)
         return bulk_data
         
 
@@ -185,8 +192,8 @@ def InputComponent(id=0):
         
         solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
 
-        mip_but = st.button('solve')
-        if(mip_but):
+        solve_but = st.button('solve')
+        if(solve_but):
             # df = pd.DataFrame(data,columns=(columns_name))
             # st.dataframe(df)
             data_dir = GetInputDict({str_n:n,str_dis:distance_limit,"data":data})
@@ -252,10 +259,6 @@ def main(id=0):
         session.run_id += 1
         bulk_data = CSVInput()
         print("L256_ session: {0}".format(session.run_id))
-        if bulk_data:
-            solutions = SolveBulk(bulk_data, solver_MIP)
-            if solutions:
-                OutputBulk(solutions, session.run_id)
                 
 
         
