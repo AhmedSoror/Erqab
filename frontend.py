@@ -13,15 +13,16 @@
 # -------------------------------------------------------
 # -------------------------------------------------------
 # -------------------------------------------------------
+from altair.vegalite.v4.schema.channels import Key
 import streamlit as st
 import SessionState 
-import datetime
 import numpy as np
 import pandas as pd
-from solver_MIP import SolverMIP
-from solver_MIP import ReadCSV
-import os
-from io import StringIO
+from solver import SolverDP
+from solver import SolverMIP
+from solver import SolverGreedy
+from solver import SolverMeta
+from solver import ReadDF
 
 # ----------------
 # Global variables
@@ -68,12 +69,12 @@ dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 def SolveInstance(data, solver_select):
     if solver_select == solver_MIP :
         sol = SolverMIP(data)
-    # elif solver_select == solver_Greedy :
-        # sol = SolverGreedy(data)
-    # elif solver_select == solver_DP :
-    #     sol = SolverDP(data)
-    # else:
-    #     sol = SolverMeta(data)
+    elif solver_select == solver_Greedy :
+        sol = SolverGreedy(data)
+    elif solver_select == solver_DP :
+        sol = SolverDP(data)
+    else:
+        sol = SolverMeta(data)
     return sol
 
 def SolveBulk(bulk_data, solver_select):
@@ -98,15 +99,16 @@ def GetInputDict(data_input):
     return data_dir
 
 
-def CSVInput():
+def CSVInput(id=0):
     # # path = st.text_input('CSV file path')
     path = st.file_uploader("Choose a file",type=['csv'])
     if path:
-        # return ReadCSV(stringio)
         df = pd.read_csv(path, header=None, sep='\n')
+        path.seek(0)
         df = df[0].str.split(',', expand=True)
-        st.write(df)
-        print(df)
+        bulk_data = ReadDF(df)
+        return bulk_data
+        
 
 def InputComponent_old():
     with st.beta_expander("Input", expanded=True):
@@ -208,20 +210,21 @@ def SingleInputComponent(session):
 # -----------------------
 def OutputComponent(data, id=0):
     st.write("Traverllers: {0}".format(data["z"]))
-    print(data)
     # display cars
     data_1 = {"Cars":data[str_cars]}
     df = pd.DataFrame.from_dict(data_1)
     
-    print(type(data[str_cars]))
-    
-    # print(np.array(data[str_cars]).astype(int))
+    # print(type(data[str_cars]))
     
     # drop rows with only 0s
-    a_series = (df != 0).any(axis=1)
-    df_noZeros = df.loc[a_series]
-    
-    st.dataframe(df)
+    # a_series = (df != 0).any(axis=1)
+    # df_noZeros = df.loc[a_series]
+    st.write('Matchings: ',df, Key="asd{0}".format(id))
+    # st.dataframe(df)
+
+def OutputBulk(solutions, id=0):
+    for sol in solutions:
+        OutputComponent(sol, id)    
 
 
 # -----------------------
@@ -248,11 +251,12 @@ def main(id=0):
         # increment session id to reset component
         session.run_id += 1
         bulk_data = CSVInput()
+        print("L256_ session: {0}".format(session.run_id))
         if bulk_data:
             solutions = SolveBulk(bulk_data, solver_MIP)
             if solutions:
-                for sol in solutions:
-                    OutputComponent(sol, session.run_id)
+                OutputBulk(solutions, session.run_id)
+                
 
         
 # -----------------------
