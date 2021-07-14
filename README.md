@@ -20,7 +20,18 @@ The most challenging part about this business is to match people together.
 3. Dynamic Programming
 > - Brute force to find the solution while making use of repeated states.
 4. Metaheuristic
->-
+> - Genatic Algorithm.
+> - Population size = 80.
+> - Number of generations = 100.
+> - Each gene represents a driver number.
+> - Each chromosone is a 1D array where index represents a travaller and value represents a gene.
+> - Initial population each chromosone is heuristic solution.
+> - fitness function is number of matchings.
+> - parent selection through roulette wheel where weights are assigned using fitness function.
+> - crossover function is splitting parent chromosones based on random index.
+> - Mutation function is swapping passengers between two drivers.
+> - Mutation Probability = 0.7
+> - Best 2 solution are propagated into next generation in addition to new sibilings.
 
 ---
 ## Run on localhost:
