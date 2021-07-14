@@ -67,14 +67,25 @@ dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
 # Solve
 # -----------------------
 def SolveInstance(data, solver_select):
+    # my_bar = st.progress(0)
+    # for percent_complete in range(100):
+    #     time.sleep(0.1)
+    #     my_bar.progress(percent_complete + 1)
+    
+    spinner_msg = 'Solving...'
     if solver_select == solver_MIP :
-        sol = SolverMIP(data)
+        with st.spinner(spinner_msg):
+            sol = SolverMIP(data)
+            
     elif solver_select == solver_Greedy :
-        sol = SolverGreedy(data)
+        with st.spinner(spinner_msg):
+            sol = SolverGreedy(data)
     elif solver_select == solver_DP :
-        sol = SolverDP(data)
+        with st.spinner(spinner_msg):
+            sol = SolverDP(data)
     else:
-        sol = SolverMeta(data)
+        with st.spinner(spinner_msg):
+            sol = SolverMeta(data)
     return sol
 
 def SolveBulk(bulk_data, solver_select):
@@ -220,10 +231,7 @@ def OutputComponent(data, id=0):
     # display cars
     data_1 = {"Cars":data[str_cars]}
     df = pd.DataFrame.from_dict(data_1)
-    
-    # print(type(data[str_cars]))
-    
-    # drop rows with only 0s
+        # drop rows with only 0s
     # a_series = (df != 0).any(axis=1)
     # df_noZeros = df.loc[a_series]
     st.write('Matchings: ',df, Key="asd{0}".format(id))
