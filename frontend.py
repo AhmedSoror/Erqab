@@ -221,7 +221,7 @@ def main(id=0):
     # session id used for reset
     session = SessionState.get(run_id=0)
     # create a side bar to switch between single input and bulk input
-    sidebar = st.sidebar.radio("page",["Single Input", "Upload CSV"],0)
+    sidebar = st.sidebar.radio("Input Options",["Single Input", "Upload CSV"],0)
     if(sidebar == "Single Input"):
         SingleInputComponent(session)
     elif (sidebar == "Upload CSV"):
