@@ -14,6 +14,8 @@ sys.setrecursionlimit(500000)
 
 str_cars = "cars"
 str_z = "z"
+EPS =10e-8
+INF = 10e18
 
 str_n = "n"
 # distance limit
@@ -130,6 +132,13 @@ def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacit
         return memo[str(matched[:pos-1])]
         
     if pos==n:
+        
+        for i in range(len(counts)):
+            if counts[i]>0 and counts[i]<min_passengers[i]:
+                return -n*2,[]
+        
+        
+        
         return 0,matched
         
     

@@ -164,7 +164,9 @@ def ReadDF(df):
 
 def GetDist(loc_A, loc_B):
     return math.sqrt( math.pow(loc_A[0]-loc_B[0],2) + math.pow(loc_A[1]-loc_B[1],2))
-   
+
+def increment(x):
+    return x+1
 # MIP solution
 def SolverMIP(data):
     run_time=0
@@ -358,7 +360,7 @@ def SolverDP(data):
     
     cars_final=DP_To_Cars(macthings)
     
-
+    cars_final=[list(map(increment, cars)) for cars in cars_final]
     
     return {str_z: sol, str_cars: cars_final, "time": end_time}
               
@@ -369,8 +371,13 @@ def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacit
         return memo[str(matched[:pos-1])]
         
     if pos==n:
+        for i in range(len(counts)):
+            if counts[i]>0 and counts[i]<min_passengers[i]:
+                return -n*2,[]
         return 0,matched
         
+    if matched[pos] != -1:
+        return SolverDPRec(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist, matched, counts, memo, pos+1)
     
     best_sol,best_sol_matched=0,matched
     
@@ -583,26 +590,29 @@ def main_testfile(test_set):
         # ---------------------------------- MIP ------------------------------------
         # ---------------------------------------------------------------------------
         sol_MIP = SolverMIP(testCase)
-        print(sol_MIP)
+        print(sol_MIP[str_z])
+        print(sol_MIP[str_cars])
         
         # ---------------------------------------------------------------------------
         # ------------------------------ Greedy -------------------------------------
         # ---------------------------------------------------------------------------
-        sol_Greedy = SolverGreedy(testCase)
-        print(sol_Greedy)
+        # sol_Greedy = SolverGreedy(testCase)
+        # print(sol_Greedy)
         
         
         # ------------------------------------------------------------------------
         # ------------------------------ DP --------------------------------------
         # ------------------------------------------------------------------------
         sol_DP=SolverDP(testCase)
-        print(sol_DP)
+        print(sol_DP[str_z])
+        print(sol_DP[str_cars])
+
         
         # ---------------------------------------------------------------------------
         # ------------------------------ Meta-Heuristic -----------------------------
         # ---------------------------------------------------------------------------
-        sol_Meta=genatic_algorithm(testCase)
-        print(sol_Meta)
+        # sol_Meta=genatic_algorithm(testCase)
+        # print(sol_Meta)
         
         
         # ---------------------------------------------------------------------------
