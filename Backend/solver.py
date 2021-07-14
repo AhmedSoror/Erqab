@@ -383,8 +383,13 @@ def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacit
         return memo[str(matched[:pos-1])]
         
     if pos==n:
+        for i in range(len(counts)):
+            if counts[i]>0 and counts[i]<min_passengers[i]:
+                return -n*2,[]
         return 0,matched
         
+    if matched[pos] != -1:
+        return SolverDPRec(n, max_distance, max_pay, min_passenger_fare, min_passengers, capacity, dist, matched, counts, memo, pos+1)
     
     best_sol,best_sol_matched=0,matched
     
@@ -418,9 +423,9 @@ def Greedy_To_Meta(data):
     greedy_sol=SolverGreedy(data)[str_cars]
     matched=[-1]*data[str_n]
     for pool in greedy_sol:
-        driver=pool[0]
+        driver=pool[0]-1
         for passenger in pool:
-            matched[passenger]=driver
+            matched[passenger-1]=driver
     return matched
 
 def Meta_To_Cars(matched):
@@ -601,6 +606,7 @@ def main_testfile(test_set):
         sol_MIP = SolverMIP(testCase)
         print(sol_MIP)
         
+        
         # ---------------------------------------------------------------------------
         # ------------------------------ Greedy -------------------------------------
         # ---------------------------------------------------------------------------
@@ -613,6 +619,7 @@ def main_testfile(test_set):
         # ------------------------------------------------------------------------
         sol_DP=SolverDP(testCase)
         print(sol_DP)
+
         
         # ---------------------------------------------------------------------------
         # ------------------------------ Meta-Heuristic -----------------------------
