@@ -417,9 +417,9 @@ def Greedy_To_Meta(data):
     greedy_sol=SolverGreedy(data)[str_cars]
     matched=[-1]*data[str_n]
     for pool in greedy_sol:
-        driver=pool[0]
+        driver=pool[0]-1
         for passenger in pool:
-            matched[passenger]=driver
+            matched[passenger-1]=driver
     return matched
 
 def Meta_To_Cars(matched):
@@ -573,6 +573,7 @@ def genatic_algorithm(data):
     run_time = time.time() - start_time
     cars_final=Meta_To_Cars(best_solution)
     # 1-indexed output
+    # print(cars_final)
     cars_final= [list(map(increment, cars)) for cars in cars_final]
     return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
      
@@ -598,29 +599,28 @@ def main_testfile(test_set):
         # ---------------------------------- MIP ------------------------------------
         # ---------------------------------------------------------------------------
         sol_MIP = SolverMIP(testCase)
-        print(sol_MIP[str_z])
-        print(sol_MIP[str_cars])
+        print(sol_MIP)
+        
         
         # ---------------------------------------------------------------------------
         # ------------------------------ Greedy -------------------------------------
         # ---------------------------------------------------------------------------
-        # sol_Greedy = SolverGreedy(testCase)
-        # print(sol_Greedy)
+        sol_Greedy = SolverGreedy(testCase)
+        print(sol_Greedy)
         
         
         # ------------------------------------------------------------------------
         # ------------------------------ DP --------------------------------------
         # ------------------------------------------------------------------------
         sol_DP=SolverDP(testCase)
-        print(sol_DP[str_z])
-        print(sol_DP[str_cars])
+        print(sol_DP)
 
         
         # ---------------------------------------------------------------------------
         # ------------------------------ Meta-Heuristic -----------------------------
         # ---------------------------------------------------------------------------
-        # sol_Meta=genatic_algorithm(testCase)
-        # print(sol_Meta)
+        sol_Meta=genatic_algorithm(testCase)
+        print(sol_Meta)
         
         
         # ---------------------------------------------------------------------------
