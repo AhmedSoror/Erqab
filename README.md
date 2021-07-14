@@ -39,4 +39,4 @@ The most challenging part about this business is to match people together.
 
 ---
 ## Deployed Link:
-https://share.streamlit.io/ahmedsoror/erqab/dev/Erqab.py
+https://share.streamlit.io/ahmedsoror/erqab/main/Erqab.py
