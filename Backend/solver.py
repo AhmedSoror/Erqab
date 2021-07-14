@@ -122,6 +122,7 @@ def MatchesToCars(matches):
     x = np.array(matches)
     x = x[~np.all(x == 0, axis=1)]
     cars = []
+    solo_drivers=0
     for arr in x:
         c = 0
         car=[]
@@ -129,8 +130,11 @@ def MatchesToCars(matches):
             c+=1
             if i==1:
                 car.append(c)
-        cars.append(car)
-    return cars
+        if(len(car)>1):
+            cars.append(car)
+        else:
+            solo_drivers +=1
+    return cars, solo_drivers
     
 def ReadDF(df):
     # df = pd.read_csv(dataPath, header=None, sep='\n')
@@ -251,6 +255,7 @@ def SolverMIP(data):
     Xs_values = []
     Ds_values = []
     Ps_values = []
+    travellers = round(solver.Objective().Value())
     for i in range (len(Xs)):
         Xs_values.append([])
         Ds_values.append(Ds[i].solution_value())
@@ -258,8 +263,9 @@ def SolverMIP(data):
         for j in range (len(Xs[i])):
             Xs_values[i].append((int)(Xs[i][j].solution_value()))
         
-    cars_arr = MatchesToCars(Xs_values)
-    return {str_z:round(solver.Objective().Value()), str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
+    cars_arr, solo_drivers = MatchesToCars(Xs_values)
+    travellers -= solo_drivers
+    return {str_z:travellers, str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
  
 #Greedy solution
 def SolverGreedy(data):
