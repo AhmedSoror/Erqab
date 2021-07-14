@@ -17,11 +17,11 @@ import numpy as np
 import pandas as pd
 import SessionState 
 import streamlit as st
-from solver import ReadDF
-from solver import SolverDP
-from solver import SolverMIP
-from solver import SolverMeta
-from solver import SolverGreedy
+from Backend.solver import ReadDF
+from Backend.solver import SolverDP
+from Backend.solver import SolverMIP
+from Backend.solver import SolverMeta
+from Backend.solver import SolverGreedy
 from altair.vegalite.v4.schema.channels import Key
 
 # ----------------
