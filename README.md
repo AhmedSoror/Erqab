@@ -36,3 +36,7 @@ The most challenging part about this business is to match people together.
 ---
 ## Run on localhost:
 `streamlit run Erqab.py`
+
+---
+## Deployed Link:
+https://share.streamlit.io/ahmedsoror/erqab/dev/Erqab.py
