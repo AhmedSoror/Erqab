@@ -159,12 +159,18 @@ def ReadDF(df):
 
 
 # --------------------------------------------------------------------------------------------------------------
-# ------------------------------------------- Solver -----------------------------------------------------------
+# ------------------------------------------- Helpers -----------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
-
 def GetDist(loc_A, loc_B):
     return math.sqrt( math.pow(loc_A[0]-loc_B[0],2) + math.pow(loc_A[1]-loc_B[1],2))
    
+def increment(x):
+    return x+1
+
+# --------------------------------------------------------------------------------------------------------------
+# ------------------------------------------- Solver -----------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------
+
 # MIP solution
 def SolverMIP(data):
     run_time=0
@@ -318,7 +324,8 @@ def SolverGreedy(data):
     cars_final = []
     for i in range(0, drivers_count):  # -- to satisfy the min capacity constraint
         if(len(cars[i])-1 >= min_capacities[cars[i][0]]):
-            cars_final.append(cars[i])
+            # 1-indexed output
+            cars_final.append(list(map(increment, cars[i])))
 
     # -- solution is the total number of travellers wich is the sum of the each car length
     z = sum(len(x) for x in cars)
@@ -358,7 +365,8 @@ def SolverDP(data):
     
     cars_final=DP_To_Cars(macthings)
     
-
+    # 1-indexed output
+    cars_final= [list(map(increment, cars)) for cars in cars_final]
     
     return {str_z: sol, str_cars: cars_final, "time": end_time}
               
@@ -559,6 +567,8 @@ def genatic_algorithm(data):
         
     run_time = time.time() - start_time
     cars_final=Meta_To_Cars(best_solution)
+    # 1-indexed output
+    cars_final= [list(map(increment, cars)) for cars in cars_final]
     return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
      
 def SolverMeta(data):
