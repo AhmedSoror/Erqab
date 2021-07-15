@@ -216,7 +216,7 @@ def GetMetrics(data):
 
     # MIP
     # return {str_z:travellers, str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
-    # greedy
+    # Heuristic
     # {str_z: z, str_cars: cars_final, "time": run_time}
     # DP
     # return {str_z: sol, str_cars: cars_final, "time": end_time}
@@ -337,18 +337,18 @@ def SolverMIP(data):
     
     return solution
  
-#Greedy solution
-def SolverGreedy(data):
-    result = SolverGreedy1(data)
+#Heuristic solution
+def SolverHeuristic(data):
+    result = SolverHeuristic1(data)
     cars_last=result[str_cars]
     i=0
     while(len(cars_last)==0 and i<10):
         i+=1
-        result = SolverGreedy1(data)
+        result = SolverHeuristic1(data)
         cars_last=result[str_cars]
     return  result
 
-def SolverGreedy1(data):
+def SolverHeuristic1(data):
     # -- extracting inputs
     n = data[str_n]
     capacities = data[str_cap]
@@ -510,10 +510,10 @@ def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacit
     return best_sol,best_sol_matched           
 
 #Meta solution
-def Greedy_To_Meta(data):
-    greedy_sol=SolverGreedy(data)[str_cars]
+def Heuristic_To_Meta(data):
+    heuristic_sol=SolverHeuristic(data)[str_cars]
     matched=[-1]*data[str_n]
-    for pool in greedy_sol:
+    for pool in heuristic_sol:
         driver=pool[0]-1
         for passenger in pool:
             matched[passenger-1]=driver
@@ -633,10 +633,10 @@ def genatic_algorithm(data):
     locations=data[str_location]
     dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
     
-    greedy_solution=Greedy_To_Meta(data)
+    Heuristic_solution=Heuristic_To_Meta(data)
     
     
-    population= [Greedy_To_Meta(data) for _ in range(POPULATIION_SIZE)]
+    population= [Heuristic_To_Meta(data) for _ in range(POPULATIION_SIZE)]
     best_solution=population[0]
     best_solution_value=fitness_function(n, max_distance, best_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)
     best_solution_iteration=0
@@ -705,10 +705,10 @@ def main_testfile(test_set):
         
         
         # ---------------------------------------------------------------------------
-        # ------------------------------ Greedy -------------------------------------
+        # ------------------------------ Heuristic -------------------------------------
         # ---------------------------------------------------------------------------
-        sol_Greedy = SolverGreedy(testCase)
-        # print(sol_Greedy)
+        sol_Heuristic = SolverHeuristic(testCase)
+        # print(sol_Heuristic)
         
         
         # ------------------------------------------------------------------------
