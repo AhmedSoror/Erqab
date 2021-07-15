@@ -21,7 +21,7 @@ from Backend.solver import ReadDF
 from Backend.solver import SolverDP
 from Backend.solver import SolverMIP
 from Backend.solver import SolverMeta
-from Backend.solver import SolverGreedy
+from Backend.solver import SolverHeuristic
 from altair.vegalite.v4.schema.channels import Key
 
 # ----------------
@@ -36,7 +36,7 @@ location_x = "location_x"
 location_y = "location_y"
 columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
  
-solver_Greedy ="Greedy"
+solver_Heuristic ="Heuristic"
 solver_MIP ="MIP"
 solver_Meta ="Meta"
 solver_DP ="DP"
@@ -79,9 +79,9 @@ def SolveInstance(data, solver_select):
         with st.spinner(spinner_msg):
             sol = SolverMIP(data)
             
-    elif solver_select == solver_Greedy :
+    elif solver_select == solver_Heuristic :
         with st.spinner(spinner_msg):
-            sol = SolverGreedy(data)
+            sol = SolverHeuristic(data)
     elif solver_select == solver_DP :
         with st.spinner(spinner_msg):
             sol = SolverDP(data)
@@ -144,7 +144,7 @@ def InputComponent(id=0):
                         data[ind][usr] = (int)(data[ind][usr])
 
         # solve 
-        solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
+        solver_select = st.selectbox('Solver', [solver_Heuristic,solver_MIP,solver_Meta,solver_DP], key="solver_select")
         solve_but = st.button('solve')
         if(solve_but):
             # convert input array to input dictionary accepted by the solver
@@ -171,7 +171,7 @@ def CSVInput(id=0):
         df = df[0].str.split(',', expand=True)
         bulk_data = ReadDF(df)
         if bulk_data:
-            solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
+            solver_select = st.selectbox('Solver', [solver_Heuristic,solver_MIP,solver_Meta,solver_DP], key="solver_select")
             solve_but = st.button('solve')
             if(solve_but):
                 solutions = SolveBulk(bulk_data, solver_select)
