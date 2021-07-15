@@ -35,6 +35,7 @@ The most challenging part about this business is to match people together.
 
 ---
 ## Run on localhost:
+
 First clone the repo
 ```
 git clone https://github.com/AhmedSoror/Erqab.git
@@ -50,6 +51,7 @@ Run on localhost
 ```
 streamlit run Erqab.py
 ```
+
 
 ---
 ## Deployed Link:
