@@ -35,6 +35,8 @@ The most challenging part about this business is to match people together.
 
 ---
 ## Run on localhost:
+> - git clone https://github.com/AhmedSoror/Erqab.git
+> - cd Erqb
 > - pip install -r  requirements.txt
 > - streamlit run Erqab.py
 
