@@ -341,15 +341,15 @@ def SolverGreedy1(data):
     for i in range(0, drivers_count):  # -- to satisfy the min capacity constraint
         if(len(cars[i])-1 >= min_capacities[cars[i][0]] and len(cars[i])-1 > 1):
             # 1-indexed output
-            cars_final.append(cars[i])
-            # cars_final.append(list(map(increment, cars[i])))
+            # cars_final.append(cars[i])
+            cars_final.append(list(map(increment, cars[i])))
 
     # -- solution is the total number of travellers wich is the sum of the each car length
     z = sum(len(x) for x in cars_final)
     run_time = time.time() - start_time
-    print(z)
-    print(cars_final)
-    print("#########")
+    # print(z)
+    # print(cars_final)
+    # print("#########")
     return {str_z: z, str_cars: cars_final, "time": run_time}
  
 #DP solution
