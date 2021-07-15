@@ -35,8 +35,8 @@ The most challenging part about this business is to match people together.
 
 ---
 ## Run on localhost:
->1-pip install -r  requirements.txt
->2-streamlit run Erqab.py
+> - pip install -r  requirements.txt
+> - streamlit run Erqab.py
 
 
 ---
