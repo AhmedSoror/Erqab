@@ -21,7 +21,7 @@ from Backend.solver import ReadDF
 from Backend.solver import SolverDP
 from Backend.solver import SolverMIP
 from Backend.solver import SolverMeta
-from Backend.solver import SolverGreedy
+from Backend.solver import SolverHeuristic
 from altair.vegalite.v4.schema.channels import Key
 
 # ----------------
@@ -36,31 +36,33 @@ location_x = "location_x"
 location_y = "location_y"
 columns_name = [max, min_fare, min_capacity, capacity, location_x, location_y]
  
-solver_Greedy ="Greedy"
+solver_Heuristic ="Heuristic"
 solver_MIP ="MIP"
 solver_Meta ="Meta"
 solver_DP ="DP"
 # ----------------
 # dictionary keys
 # ----------------
+from Backend.solver import str_z
+from Backend.solver import str_n
+from Backend.solver import str_dis
+from Backend.solver import str_cap
+from Backend.solver import str_location
+from Backend.solver import str_pay
+from Backend.solver import str_fare
+from Backend.solver import str_min_cap
+from Backend.solver import str_cars
 
-# total number of users
-str_n = "n"
-# distance limit
-str_dis = "dl"
-# capcity per driver
-str_cap = "c"
-# locations of users
-str_location = "loc"
-# array: the max money passenger i can pay.
-str_pay = "pay"
-# array: money charged by the driver i per passenger
-str_fare = "fare"
-# array: the min number of passengers to travel with the driver
-str_min_cap = "minc"
-# key in output dictionary that holds cars. note: should be changed later on
-str_cars = "cars"
 dictionary_keys = [str_pay, str_fare, str_min_cap, str_cap, str_location]
+# ----------------
+from Backend.solver import str_travellers_count
+from Backend.solver import str_drivers_count
+from Backend.solver import str_passengers_count
+from Backend.solver import str_total_money
+from Backend.solver import str_avg_fare
+from Backend.solver import str_avg_pay
+
+
 
 
 # -----------------------
@@ -77,9 +79,9 @@ def SolveInstance(data, solver_select):
         with st.spinner(spinner_msg):
             sol = SolverMIP(data)
             
-    elif solver_select == solver_Greedy :
+    elif solver_select == solver_Heuristic :
         with st.spinner(spinner_msg):
-            sol = SolverGreedy(data)
+            sol = SolverHeuristic(data)
     elif solver_select == solver_DP :
         with st.spinner(spinner_msg):
             sol = SolverDP(data)
@@ -142,7 +144,7 @@ def InputComponent(id=0):
                         data[ind][usr] = (int)(data[ind][usr])
 
         # solve 
-        solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
+        solver_select = st.selectbox('Solver', [solver_Heuristic,solver_MIP,solver_Meta,solver_DP], key="solver_select")
         solve_but = st.button('solve')
         if(solve_but):
             # convert input array to input dictionary accepted by the solver
@@ -169,7 +171,7 @@ def CSVInput(id=0):
         df = df[0].str.split(',', expand=True)
         bulk_data = ReadDF(df)
         if bulk_data:
-            solver_select = st.selectbox('Solver', [solver_Greedy,solver_MIP,solver_Meta,solver_DP], key="solver_select")
+            solver_select = st.selectbox('Solver', [solver_Heuristic,solver_MIP,solver_Meta,solver_DP], key="solver_select")
             solve_but = st.button('solve')
             if(solve_but):
                 solutions = SolveBulk(bulk_data, solver_select)
@@ -186,17 +188,25 @@ def CSVInput(id=0):
 # -----------------------
 def OutputComponent(data, id=0):
     # dispaly total number of travellers
-    st.write("Traverllers: {0}".format(data["z"]))
+    metrics = {"Travellers":[data[str_travellers_count]]
+        ,"Drivers"          :[data[str_drivers_count]]
+        ,"Passengers"       :[data[str_passengers_count]]
+        ,"Total money paid" :[data[str_total_money]]
+        ,"Average fare"     :[data[str_avg_fare]]
+        ,"Average pay"      :[data[str_avg_pay]]
+    
+    }
+    df_metrics = pd.DataFrame.from_dict(metrics)
+    st.write('Metrics: ',df_metrics, Key="metrics{0}".format(id))
+
     # display cars
     data_1 = {"Cars":data[str_cars]}
-    df = pd.DataFrame.from_dict(data_1)
+    df_matchings = pd.DataFrame.from_dict(data_1)
      
-    # drop rows with only 0s
-    # a_series = (df != 0).any(axis=1)
-    # df_noZeros = df.loc[a_series]
-    
     # display matchings
-    st.write('Matchings: ',df, Key="asd{0}".format(id))
+    st.write('Matchings: ',df_matchings, Key="matchings{0}".format(id))
+    st.markdown("---")
+
 
 # output multiple solutions
 def OutputBulk(solutions, id=0):

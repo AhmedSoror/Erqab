@@ -48,6 +48,14 @@ str_fare = "fare"
 # array: the min number of passengers to travel with the driver
 str_min_cap = "minc"
 
+# Metrics strings
+str_travellers_count = "travellers_count"
+str_drivers_count = "drivers_count"
+str_passengers_count = "passengers_count"
+str_total_money = "total_money"
+str_avg_fare = "avg_fare"
+str_avg_pay = "avg_pay"
+
 # --------------------------------------------------------------------------------------------------------------
 # -------------------------------------------  I/O  ------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------
@@ -160,6 +168,61 @@ def ReadDF(df):
         dic[("loc")]=needed[:,4:6].astype(np.int64)
         out.append(dic)
     return out  
+# --------------------------------------------------------------------------------------------------------------
+# ------------------------------------------- Summary ----------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------
+
+def GetTotalPaidMoney(data):
+    # pays = data[str_pay]
+    fares = data[str_fare]
+    cars = data[str_cars]
+    total_money = 0
+    for car in cars:
+        driver_index=car[0]-1
+        driver_fare = fares[driver_index]
+        total_money+= driver_fare * (len(car)-1)
+        
+    return total_money
+
+
+def GetMetrics(data):
+    travellers_count = data[str_z]
+    cars = data[str_cars]
+    if travellers_count>0:
+        drivers_count = len(cars)
+        passengers_count = travellers_count - drivers_count
+        total_money = GetTotalPaidMoney({str_cars:cars, str_fare: data[str_fare]})
+        if passengers_count>0:
+            avg_fare = total_money/passengers_count
+        if drivers_count>0:
+            avg_pay = total_money/drivers_count
+    else:
+        drivers_count = 0
+        passengers_count = 0
+        total_money = 0
+        avg_fare = 0
+        avg_pay = 0
+
+    return {
+        str_travellers_count : travellers_count,
+        str_drivers_count : drivers_count,
+        str_passengers_count : passengers_count,
+        str_total_money : total_money,
+        str_avg_fare : avg_fare,
+        str_avg_pay : avg_pay,
+        str_cars:cars
+        }
+    
+
+    # MIP
+    # return {str_z:travellers, str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
+    # Heuristic
+    # {str_z: z, str_cars: cars_final, "time": run_time}
+    # DP
+    # return {str_z: sol, str_cars: cars_final, "time": end_time}
+    # Meta
+    # return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
+
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -265,20 +328,27 @@ def SolverMIP(data):
         
     cars_arr, solo_drivers = MatchesToCars(Xs_values)
     travellers -= solo_drivers
-    return {str_z:travellers, str_cars: cars_arr, "Xs": Xs_values,"time":run_time}
+    
+    # calculate metrics
+    metrics_input =  {str_z:travellers, str_cars: cars_arr, str_fare: data[str_fare]}
+    
+    solution = GetMetrics(metrics_input)
+    solution["time"] = run_time
+    
+    return solution
  
-#Greedy solution
-def SolverGreedy(data):
-    result = SolverGreedy1(data)
+#Heuristic solution
+def SolverHeuristic(data):
+    result = SolverHeuristic1(data)
     cars_last=result[str_cars]
     i=0
     while(len(cars_last)==0 and i<10):
         i+=1
-        result = SolverGreedy1(data)
+        result = SolverHeuristic1(data)
         cars_last=result[str_cars]
     return  result
 
-def SolverGreedy1(data):
+def SolverHeuristic1(data):
     # -- extracting inputs
     n = data[str_n]
     capacities = data[str_cap]
@@ -347,11 +417,14 @@ def SolverGreedy1(data):
     # -- solution is the total number of travellers wich is the sum of the each car length
     z = sum(len(x) for x in cars_final)
     run_time = time.time() - start_time
-    # print(z)
-    # print(cars_final)
-    # print("#########")
-    return {str_z: z, str_cars: cars_final, "time": run_time}
- 
+
+    # calcaulate metrics
+    metrics_input =  {str_z:z, str_cars: cars_final, str_fare: data[str_fare]}
+    solution = GetMetrics(metrics_input)
+    solution["time"] = run_time
+    
+    return solution
+
 #DP solution
 def DP_To_Cars(matched):
     
@@ -387,7 +460,12 @@ def SolverDP(data):
     # 1-indexed output
     cars_final= [list(map(increment, cars)) for cars in cars_final]
     
-    return {str_z: sol, str_cars: cars_final, "time": end_time}
+    # calcaulate metrics
+    metrics_input =  {str_z:sol, str_cars: cars_final, str_fare: data[str_fare]}
+    solution = GetMetrics(metrics_input)
+    solution["time"] = end_time
+    
+    return solution
               
 def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacity,dist,matched,counts,memo,pos):
     
@@ -432,10 +510,10 @@ def SolverDPRec(n,max_distance,max_pay,min_passenger_fare,min_passengers,capacit
     return best_sol,best_sol_matched           
 
 #Meta solution
-def Greedy_To_Meta(data):
-    greedy_sol=SolverGreedy(data)[str_cars]
+def Heuristic_To_Meta(data):
+    heuristic_sol=SolverHeuristic(data)[str_cars]
     matched=[-1]*data[str_n]
-    for pool in greedy_sol:
+    for pool in heuristic_sol:
         driver=pool[0]-1
         for passenger in pool:
             matched[passenger-1]=driver
@@ -555,10 +633,10 @@ def genatic_algorithm(data):
     locations=data[str_location]
     dist=np.linalg.norm(np.array(locations)[:, None] - np.array(locations)[None, :], axis=-1)
     
-    greedy_solution=Greedy_To_Meta(data)
+    Heuristic_solution=Heuristic_To_Meta(data)
     
     
-    population= [Greedy_To_Meta(data) for _ in range(POPULATIION_SIZE)]
+    population= [Heuristic_To_Meta(data) for _ in range(POPULATIION_SIZE)]
     best_solution=population[0]
     best_solution_value=fitness_function(n, max_distance, best_solution, max_pay, min_passenger_fare, min_passengers, capacity, dist)
     best_solution_iteration=0
@@ -593,7 +671,13 @@ def genatic_algorithm(data):
     cars_final=Meta_To_Cars(best_solution)
     # 1-indexed output
     cars_final= [list(map(increment, cars)) for cars in cars_final]
-    return {str_z: best_solution_value-1, str_cars: cars_final, "time": run_time}
+    
+    # calcaulate metrics
+    metrics_input =  {str_z:best_solution_value-1, str_cars: cars_final, str_fare: data[str_fare]}
+    solution = GetMetrics(metrics_input)
+    solution["time"] = run_time
+    
+    return solution
      
 def SolverMeta(data):
     return genatic_algorithm(data)
@@ -621,10 +705,10 @@ def main_testfile(test_set):
         
         
         # ---------------------------------------------------------------------------
-        # ------------------------------ Greedy -------------------------------------
+        # ------------------------------ Heuristic -------------------------------------
         # ---------------------------------------------------------------------------
-        sol_Greedy = SolverGreedy(testCase)
-        # print(sol_Greedy)
+        sol_Heuristic = SolverHeuristic(testCase)
+        # print(sol_Heuristic)
         
         
         # ------------------------------------------------------------------------
