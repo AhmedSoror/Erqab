@@ -188,12 +188,12 @@ def CSVInput(id=0):
 # -----------------------
 def OutputComponent(data, id=0):
     # dispaly total number of travellers
-    metrics = {"Travellers":[data[str_travellers_count]]
-        ,"Drivers"          :[data[str_drivers_count]]
-        ,"Passengers"       :[data[str_passengers_count]]
-        ,"Total money paid" :[data[str_total_money]]
-        ,"Average fare"     :[data[str_avg_fare]]
-        ,"Average pay"      :[data[str_avg_pay]]
+    metrics = {"Travellers"                 :[data[str_travellers_count]]
+        ,"Drivers"                          :[data[str_drivers_count]]
+        ,"Passengers"                       :[data[str_passengers_count]]
+        ,"Total money paid"                 :[data[str_total_money]]
+        ,"Avg fare per passenger"       :[data[str_avg_fare]]
+        ,"Avg pay per driver"           :[data[str_avg_pay]]
     
     }
     df_metrics = pd.DataFrame.from_dict(metrics)
