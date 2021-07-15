@@ -41,10 +41,13 @@ First clone the repo
 git clone https://github.com/AhmedSoror/Erqab.git
 cd Erqb
 ```
-Install dependencies
+Create environment using venv (optional)
 ```
 python -m venv venv_Erqab
-venv/Scripts/activate
+venv_Erqab/Scripts/activate
+```
+Install dependencies
+```
 pip install -r  requirements.txt
 ```
 Run on localhost
