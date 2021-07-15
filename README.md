@@ -35,10 +35,12 @@ The most challenging part about this business is to match people together.
 
 ---
 ## Run on localhost:
-> - git clone https://github.com/AhmedSoror/Erqab.git
-> - cd Erqb
-> - pip install -r  requirements.txt
-> - streamlit run Erqab.py
+1. git clone https://github.com/AhmedSoror/Erqab.git
+2. cd Erqb
+3. python -m venv venv
+4. venv/Scripts/activate
+5. pip install -r  requirements.txt
+6. streamlit run Erqab.py
 
 
 ---
