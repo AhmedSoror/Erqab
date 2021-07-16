@@ -42,9 +42,15 @@ git clone https://github.com/AhmedSoror/Erqab.git
 cd Erqb
 ```
 Create environment using venv (optional)
+>- windows:
 ```
 python -m venv venv_Erqab
 venv_Erqab/Scripts/activate
+```
+>- linux:
+```
+python -m venv venv_Erqab
+venv_Erqab/bin/activate
 ```
 Install dependencies
 ```
