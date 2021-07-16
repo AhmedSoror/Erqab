@@ -39,7 +39,7 @@ The most challenging part about this business is to match people together.
 First clone the repo
 ```
 git clone https://github.com/AhmedSoror/Erqab.git
-cd Erqb
+cd Erqab
 ```
 Create environment using venv (optional)
 >- windows:
